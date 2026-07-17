@@ -1,0 +1,633 @@
+{
+  "employee_name": "Anggit Puji Liestary",
+  "consultant_role": "Operator",
+  "month": 6,
+  "year": 2026,
+  "month_label": "Juni 2026",
+  "prepared_date": "30 Juni 2026",
+  "tasks": [
+    "Monitoring WAG dan Telegram terkait gangguan jarkom uker dan selular EDC",
+    "Koordinasi dengan tim RCE terkait gangguan jarkom unit kerja dan selular EDC",
+    "Koordinasi dengan petugas IT/PIC melalui chat WhatsApp dan Telegram terkait gangguan jarkom uker",
+    "Tracking tiket-tiket yang running untuk status update-nya serta closed tiket",
+    "Monitoring dan capture availability all region dan provider per jam pada dashboard Nominal",
+    "Koordinasi dengan petugas IT/PIC melalui chat WhatsApp dan Telegram terkait gangguan jarkom uker",
+    "Membuat tiket gangguan penurunan availability region serta provider"
+  ],
+  "days": [
+    {
+      "day": 1,
+      "date": "01/06/2026",
+      "type": "OFF",
+      "shift": "OFF",
+      "color": "white"
+    },
+    {
+      "day": 2,
+      "date": "02/06/2026",
+      "type": "S1",
+      "shift": "1",
+      "color": "white",
+      "start": "06:00",
+      "end": "15:00",
+      "remark": "Shift 1",
+      "open": {
+        "JARINGAN LAMBAT": 13,
+        "APLIKASI ERROR": 6,
+        "REAKTIVASI SIMCARD": 4,
+        "JARKOM LASTMILE": 2
+      },
+      "closed": {
+        "JARKOM LASTMILE": 3,
+        "APLIKASI LAMBAT": 1,
+        "ROUTING": 1,
+        "REAKTIVASI SIMCARD": 1
+      }
+    },
+    {
+      "day": 3,
+      "date": "03/06/2026",
+      "type": "S1",
+      "shift": "1",
+      "color": "white",
+      "start": "06:00",
+      "end": "15:00",
+      "remark": "Shift 1",
+      "open": {
+        "JARINGAN LAMBAT": 14,
+        "JARKOM LASTMILE": 7,
+        "APLIKASI ERROR": 2,
+        "REQ ROUTING": 2,
+        "REAKTIVASI SIMCARD": 1
+      },
+      "closed": {
+        "JARKOM LASTMILE": 5,
+        "POWER ELECTRICITY": 4,
+        "REAKTIVASI SIMCARD": 2
+      }
+    },
+    {
+      "day": 4,
+      "date": "04/06/2026",
+      "type": "OFF",
+      "shift": "OFF",
+      "color": "white"
+    },
+    {
+      "day": 5,
+      "date": "05/06/2026",
+      "type": "S1",
+      "shift": "1",
+      "color": "white",
+      "start": "06:00",
+      "end": "15:00",
+      "remark": "Shift 1",
+      "open": {
+        "UNCONFIRM": 35,
+        "POWER ELECTRICITY": 3,
+        "SUSPEND": 1
+      },
+      "closed": {
+        "UNCONFIRM": 14,
+        "DISMANTLE": 2,
+        "PROBLEM ATM MACHINE": 1
+      }
+    },
+    {
+      "day": 6,
+      "date": "06/06/2026",
+      "type": "S1",
+      "shift": "1",
+      "color": "white",
+      "start": "06:00",
+      "end": "15:00",
+      "remark": "Shift 1",
+      "open": {
+        "UNCONFIRM": 35,
+        "POWER ELECTRICITY": 5,
+        "JARKOM LASTMILE": 1,
+        "PROBLEM ATM MACHINE": 1,
+        "OTHER": 1
+      },
+      "closed": {
+        "UNCONFIRM": 22,
+        "PROBLEM ATM MACHINE": 1
+      }
+    },
+    {
+      "day": 7,
+      "date": "07/06/2026",
+      "type": "OFF",
+      "shift": "OFF",
+      "color": "white"
+    },
+    {
+      "day": 8,
+      "date": "08/06/2026",
+      "type": "S1",
+      "shift": "1",
+      "color": "white",
+      "start": "06:00",
+      "end": "15:00",
+      "remark": "Shift 1",
+      "open": {
+        "JARINGAN LAMBAT": 10,
+        "REAKTIVASI SIMCARD": 5,
+        "APLIKASI ERROR": 3,
+        "JARKOM LASTMILE": 2,
+        "OFFLINE": 2
+      },
+      "closed": {
+        "POWER ELECTRICITY": 7,
+        "JARINGAN LAMBAT": 6,
+        "REAKTIVASI SIMCARD": 6,
+        "JARKOM LASTMILE": 5,
+        "APLIKASI ERROR": 1,
+        "JARKOM LAMBAT": 1
+      }
+    },
+    {
+      "day": 9,
+      "date": "09/06/2026",
+      "type": "S1",
+      "shift": "1",
+      "color": "white",
+      "start": "06:00",
+      "end": "15:00",
+      "remark": "Shift 1",
+      "open": {
+        "JARINGAN LAMBAT": 12,
+        "REAKTIVASI SIMCARD": 4,
+        "APLIKASI ERROR": 3,
+        "JARKOM LASTMILE": 2,
+        "REQ ROUTING": 1
+      },
+      "closed": {
+        "UNCONFIRM": 6,
+        "JARKOM LASTMILE": 5,
+        "JARKOM LAMBAT": 1
+      }
+    },
+    {
+      "day": 10,
+      "date": "10/06/2026",
+      "type": "S1",
+      "shift": "1",
+      "color": "white",
+      "start": "06:00",
+      "end": "15:00",
+      "remark": "Shift 1",
+      "open": {
+        "JARINGAN LAMBAT": 8,
+        "APLIKASI ERROR": 6,
+        "JARKOM LASTMILE": 4,
+        "REAKTIVASI SIMCARD": 3
+      },
+      "closed": {
+        "APLIKASI ERROR": 6,
+        "JARINGAN LAMBAT": 3,
+        "JARKOM LASTMILE": 2,
+        "JARKOM LAMBAT": 1
+      }
+    },
+    {
+      "day": 11,
+      "date": "11/06/2026",
+      "type": "S1",
+      "shift": "1",
+      "color": "white",
+      "start": "06:00",
+      "end": "15:00",
+      "remark": "Shift 1",
+      "open": {
+        "JARINGAN LAMBAT": 11,
+        "REAKTIVASI SIMCARD": 2,
+        "APLIKASI ERROR": 1,
+        "JARKOM LASTMILE": 1
+      },
+      "closed": {
+        "JARINGAN LAMBAT": 5,
+        "JARKOM LASTMILE": 2,
+        "APLIKASI ERROR": 1,
+        "UNCONFIRM": 1,
+        "JARKOM LAMBAT": 1
+      }
+    },
+    {
+      "day": 12,
+      "date": "12/06/2026",
+      "type": "S1",
+      "shift": "1",
+      "color": "white",
+      "start": "06:00",
+      "end": "15:00",
+      "remark": "Shift 1",
+      "open": {
+        "UNCONFIRM": 30,
+        "POWER ELECTRICITY": 2,
+        "REPOSISI": 1
+      },
+      "closed": {
+        "UNCONFIRM": 21
+      }
+    },
+    {
+      "day": 13,
+      "date": "13/06/2026",
+      "type": "S1",
+      "shift": "1",
+      "color": "white",
+      "start": "06:00",
+      "end": "15:00",
+      "remark": "Shift 1",
+      "open": {
+        "UNCONFIRM": 27,
+        "POWER ELECTRICITY": 3,
+        "JARKOM LASTMILE": 1
+      },
+      "closed": {
+        "UNCONFIRM": 27
+      }
+    },
+    {
+      "day": 14,
+      "date": "14/06/2026",
+      "type": "OFF",
+      "shift": "OFF",
+      "color": "white"
+    },
+    {
+      "day": 15,
+      "date": "15/06/2026",
+      "type": "OFF",
+      "shift": "OFF",
+      "color": "white"
+    },
+    {
+      "day": 16,
+      "date": "16/06/2026",
+      "type": "OFF",
+      "shift": "OFF",
+      "color": "white"
+    },
+    {
+      "day": 17,
+      "date": "17/06/2026",
+      "type": "S1",
+      "shift": "1",
+      "color": "white",
+      "start": "06:00",
+      "end": "15:00",
+      "remark": "Shift 1",
+      "open": {
+        "UNCONFIRM": 43,
+        "POWER ELECTRICITY": 2
+      },
+      "closed": {
+        "UNCONFIRM": 20,
+        "POWER ELECTRICITY": 1
+      }
+    },
+    {
+      "day": 18,
+      "date": "18/06/2026",
+      "type": "S1",
+      "shift": "1",
+      "color": "white",
+      "start": "06:00",
+      "end": "15:00",
+      "remark": "Shift 1",
+      "open": {
+        "JARINGAN LAMBAT": 9,
+        "JARKOM LASTMILE": 5,
+        "APLIKASI ERROR": 2,
+        "REAKTIVASI SIMCARD": 1
+      },
+      "closed": {
+        "UNCONFIRM": 6,
+        "POWER ELECTRICITY": 3,
+        "JARKOM LASTMILE": 2,
+        "JARINGAN LAMBAT": 1,
+        "REAKTIVASI SIMCARD": 1
+      }
+    },
+    {
+      "day": 19,
+      "date": "19/06/2026",
+      "type": "S1",
+      "shift": "1",
+      "color": "white",
+      "start": "06:00",
+      "end": "15:00",
+      "remark": "Shift 1",
+      "open": {
+        "REAKTIVASI SIMCARD": 4,
+        "JARKOM LASTMILE": 3,
+        "APLIKASI ERROR": 1,
+        "REQ BYPASS": 1,
+        "OFFLINE": 1,
+        "CISCO RUSAK": 1,
+        "REQ ROUTING": 1
+      },
+      "closed": {
+        "JARKOM LAMBAT": 9,
+        "JARKOM LASTMILE": 4,
+        "JARINGAN LAMBAT": 4,
+        "REAKTIVASI SIMCARD": 3
+      }
+    },
+    {
+      "day": 20,
+      "date": "20/06/2026",
+      "type": "S1",
+      "shift": "1",
+      "color": "white",
+      "start": "06:00",
+      "end": "15:00",
+      "remark": "Shift 1",
+      "open": {
+        "JARKOM LASTMILE": 7,
+        "REAKTIVASI SIMCARD": 3,
+        "JARKOM LAMBAT": 3,
+        "OFFLINE": 1
+      },
+      "closed": {
+        "JARKOM LASTMILE": 3,
+        "REAKTIVASI SIMCARD": 2,
+        "JARKOM LAMBAT": 1,
+        "RELOKASI": 1,
+        "REQ BYPASS": 1,
+        "UNCONFIRM": 1
+      }
+    },
+    {
+      "day": 21,
+      "date": "21/06/2026",
+      "type": "S1",
+      "shift": "1",
+      "color": "white",
+      "start": "06:00",
+      "end": "15:00",
+      "remark": "Shift 1",
+      "open": {
+        "REAKTIVASI SIMCARD": 2,
+        "JARKOM LASTMILE": 2,
+        "JARKOM LAMBAT": 1
+      },
+      "closed": {
+        "JARKOM LAMBAT": 3,
+        "JARKOM LASTMILE": 3,
+        "UNCONFIRM": 2,
+        "RELOKASI": 1,
+        "REPOSISI": 1,
+        "JARINGAN LAMBAT": 1,
+        "REAKTIVASI SIMCARD": 1
+      }
+    },
+    {
+      "day": 22,
+      "date": "22/06/2026",
+      "type": "OFF",
+      "shift": "OFF",
+      "color": "white"
+    },
+    {
+      "day": 23,
+      "date": "23/06/2026",
+      "type": "OFF",
+      "shift": "OFF",
+      "color": "white"
+    },
+    {
+      "day": 24,
+      "date": "24/06/2026",
+      "type": "S1",
+      "shift": "1",
+      "color": "white",
+      "start": "06:00",
+      "end": "15:00",
+      "remark": "Shift 1",
+      "open": {
+        "APLIKASI ERROR": 7,
+        "JARKOM LASTMILE": 5,
+        "JARINGAN LAMBAT": 2,
+        "REQ ROUTING": 2,
+        "OFFLINE": 1,
+        "REAKTIVASI SIMCARD": 1,
+        "UNCONFIRM": 1
+      },
+      "closed": {
+        "REAKTIVASI SIMCARD": 2,
+        "JARKOM LASTMILE": 1,
+        "APLIKASI ERROR": 1
+      }
+    },
+    {
+      "day": 25,
+      "date": "25/06/2026",
+      "type": "S1",
+      "shift": "1",
+      "color": "white",
+      "start": "06:00",
+      "end": "15:00",
+      "remark": "Shift 1",
+      "open": {
+        "UNCONFIRM": 21,
+        "POWER ELECTRICITY": 2,
+        "DISMANTLE": 1
+      },
+      "closed": {
+        "UNCONFIRM": 10
+      }
+    },
+    {
+      "day": 26,
+      "date": "26/06/2026",
+      "type": "IS",
+      "shift": "IS-1",
+      "color": "white"
+    },
+    {
+      "day": 27,
+      "date": "27/06/2026",
+      "type": "OFF",
+      "shift": "OFF",
+      "color": "white"
+    },
+    {
+      "day": 28,
+      "date": "28/06/2026",
+      "type": "OFF",
+      "shift": "OFF",
+      "color": "white"
+    },
+    {
+      "day": 29,
+      "date": "29/06/2026",
+      "type": "S1",
+      "shift": "1",
+      "color": "white",
+      "start": "06:00",
+      "end": "15:00",
+      "remark": "Shift 1",
+      "open": {
+        "JARKOM LAMBAT": 7,
+        "APLIKASI ERROR": 7,
+        "JARKOM LASTMILE": 5,
+        "REAKTIVASI SIMCARD": 3,
+        "REQ ROUTING": 2
+      },
+      "closed": {
+        "JARKOM LASTMILE": 1,
+        "POWER ELECTRICITY": 1
+      }
+    },
+    {
+      "day": 30,
+      "date": "30/06/2026",
+      "type": "S1",
+      "shift": "1",
+      "color": "white",
+      "start": "06:00",
+      "end": "15:00",
+      "remark": "Shift 1",
+      "open": {
+        "JARKOM LAMBAT": 8,
+        "JARKOM LASTMILE": 5,
+        "APLIKASI ERROR": 4,
+        "REAKTIVASI SIMCARD": 4,
+        "REQ ROUTING": 1
+      },
+      "closed": {
+        "JARKOM LAMBAT": 15,
+        "JARKOM LASTMILE": 1,
+        "REAKTIVASI SIMCARD": 1
+      }
+    }
+  ],
+  "summary": [
+    {
+      "day": 2,
+      "type": "S1",
+      "open": 25,
+      "closed": 6
+    },
+    {
+      "day": 3,
+      "type": "S1",
+      "open": 26,
+      "closed": 11
+    },
+    {
+      "day": 5,
+      "type": "S1",
+      "open": 39,
+      "closed": 17
+    },
+    {
+      "day": 6,
+      "type": "S1",
+      "open": 43,
+      "closed": 23
+    },
+    {
+      "day": 8,
+      "type": "S1",
+      "open": 22,
+      "closed": 26
+    },
+    {
+      "day": 9,
+      "type": "S1",
+      "open": 22,
+      "closed": 12
+    },
+    {
+      "day": 10,
+      "type": "S1",
+      "open": 21,
+      "closed": 12
+    },
+    {
+      "day": 11,
+      "type": "S1",
+      "open": 15,
+      "closed": 10
+    },
+    {
+      "day": 12,
+      "type": "S1",
+      "open": 33,
+      "closed": 21
+    },
+    {
+      "day": 13,
+      "type": "S1",
+      "open": 31,
+      "closed": 27
+    },
+    {
+      "day": 17,
+      "type": "S1",
+      "open": 45,
+      "closed": 21
+    },
+    {
+      "day": 18,
+      "type": "S1",
+      "open": 17,
+      "closed": 13
+    },
+    {
+      "day": 19,
+      "type": "S1",
+      "open": 12,
+      "closed": 20
+    },
+    {
+      "day": 20,
+      "type": "S1",
+      "open": 14,
+      "closed": 9
+    },
+    {
+      "day": 21,
+      "type": "S1",
+      "open": 5,
+      "closed": 12
+    },
+    {
+      "day": 24,
+      "type": "S1",
+      "open": 19,
+      "closed": 4
+    },
+    {
+      "day": 25,
+      "type": "S1",
+      "open": 24,
+      "closed": 10
+    },
+    {
+      "day": 29,
+      "type": "S1",
+      "open": 24,
+      "closed": 2
+    },
+    {
+      "day": 30,
+      "type": "S1",
+      "open": 22,
+      "closed": 17
+    }
+  ],
+  "notes": [
+    "- Monitoring WAG dan Telegram terkait gangguan jarkom uker dan selular EDC",
+    "- Koordinasi dengan tim RCE terkait gangguan jarkom unit kerja dan selular EDC",
+    "- Koordinasi dengan petugas IT/PIC melalui chat WhatsApp dan Telegram terkait gangguan jarkom uker",
+    "- Tracking tiket-tiket yang running untuk status update-nya serta closed tiket",
+    "- Monitoring dan capture availability all region dan provider per jam pada dashboard Nominal",
+    "- Koordinasi dengan petugas IT/PIC melalui chat WhatsApp dan Telegram terkait gangguan jarkom uker",
+    "- Membuat tiket gangguan penurunan availability region serta provider"
+  ]
+}

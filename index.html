@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Timesheet Cleaner</title>
+<style>
+  /* ── Reset & Base ─────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg-primary:   #0a0a0f;
+    --bg-secondary: #12121a;
+    --bg-card:      #16161f;
+    --bg-hover:     #1e1e2a;
+    --border:       #2a2a3a;
+    --border-focus: #6366f1;
+    --text-primary: #e2e8f0;
+    --text-muted:   #8892a4;
+    --text-dim:     #5a6478;
+    --accent:       #6366f1;
+    --accent-glow:  rgba(99, 102, 241, 0.3);
+    --success:      #10b981;
+    --success-glow: rgba(16, 185, 129, 0.2);
+    --warning:      #f59e0b;
+    --danger:       #ef4444;
+    --gradient-1:   linear-gradient(135deg, #6366f1, #8b5cf6);
+    --gradient-2:   linear-gradient(135deg, #06b6d4, #6366f1);
+    --radius:       12px;
+    --radius-sm:    8px;
+    --shadow:       0 4px 24px rgba(0,0,0,0.4);
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  /* ── Background Effect ────────────────────────────────── */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at 30% 20%, rgba(99,102,241,0.06) 0%, transparent 50%),
+                radial-gradient(circle at 70% 80%, rgba(6,182,212,0.04) 0%, transparent 50%);
+    z-index: -1;
+    animation: bgShift 20s ease-in-out infinite alternate;
+  }
+
+  @keyframes bgShift {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(-5%, -3%); }
+  }
+
+  /* ── Layout ───────────────────────────────────────────── */
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 40px 24px;
+  }
+
+  /* ── Header ───────────────────────────────────────────── */
+  .header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  .header-icon {
+    width: 64px;
+    height: 64px;
+    background: var(--gradient-1);
+    border-radius: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    font-size: 28px;
+    box-shadow: 0 8px 32px var(--accent-glow);
+  }
+
+  .header h1 {
+    font-size: 32px;
+    font-weight: 700;
+    background: var(--gradient-2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -0.5px;
+  }
+
+  .header p {
+    color: var(--text-muted);
+    font-size: 15px;
+    margin-top: 8px;
+  }
+
+  /* ── Pipeline Steps ──────────────────────────────────── */
+  .pipeline {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 28px 0 40px;
+    flex-wrap: wrap;
+  }
+
+  .pipeline-step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: 100px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+    transition: all 0.3s ease;
+  }
+
+  .pipeline-step.active {
+    border-color: var(--accent);
+    color: var(--text-primary);
+    box-shadow: 0 0 20px var(--accent-glow);
+  }
+
+  .pipeline-step.done {
+    border-color: var(--success);
+    color: var(--success);
+    box-shadow: 0 0 20px var(--success-glow);
+  }
+
+  .pipeline-step .step-num {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    background: var(--bg-hover);
+    color: var(--text-dim);
+  }
+
+  .pipeline-step.active .step-num {
+    background: var(--accent);
+    color: white;
+  }
+
+  .pipeline-step.done .step-num {
+    background: var(--success);
+    color: white;
+  }
+
+  .pipeline-arrow {
+    color: var(--text-dim);
+    font-size: 18px;
+  }
+
+  /* ── Cards ────────────────────────────────────────────── */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 32px;
+    margin-bottom: 24px;
+    transition: all 0.3s ease;
+  }
+
+  .card:hover {
+    border-color: rgba(99,102,241,0.2);
+  }
+
+  .card-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .card-subtitle {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+  }
+
+  /* ── Upload Zone ──────────────────────────────────────── */
+  .upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 48px 32px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .upload-zone:hover, .upload-zone.dragover {
+    border-color: var(--accent);
+    background: rgba(99,102,241,0.05);
+  }
+
+  .upload-zone.dragover {
+    transform: scale(1.01);
+    box-shadow: 0 0 40px var(--accent-glow);
+  }
+
+  .upload-zone input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .upload-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .upload-text {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+  }
+
+  .upload-hint {
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+
+  .upload-zone.has-file {
+    border-color: var(--success);
+    background: rgba(16,185,129,0.05);
+  }
+
+  .file-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    justify-content: center;
+  }
+
+  .file-info .file-icon {
+    font-size: 32px;
+  }
+
+  .file-info .file-details {
+    text-align: left;
+  }
+
+  .file-info .file-name {
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--success);
+  }
+
+  .file-info .file-size {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  /* ── Select & Button ──────────────────────────────────── */
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  select, input[type="text"] {
+    width: 100%;
+    padding: 12px 16px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-size: 14px;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238892a4' d='M6 8.5L1 3.5h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+  }
+
+  select:focus, input[type="text"]:focus {
+    outline: none;
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+  }
+
+  select:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 28px;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .btn-primary {
+    background: var(--gradient-1);
+    color: white;
+    box-shadow: 0 4px 16px var(--accent-glow);
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 24px var(--accent-glow);
+  }
+
+  .btn-success {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    box-shadow: 0 4px 16px var(--success-glow);
+  }
+
+  .btn-success:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 24px var(--success-glow);
+  }
+
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+
+  .btn-outline:hover:not(:disabled) {
+    border-color: var(--accent);
+    color: var(--text-primary);
+  }
+
+  .btn-sheets {
+    background: transparent;
+    border: 1px solid #0f9d58;
+    color: #0f9d58;
+    padding: 10px 20px;
+  }
+
+  .btn-sheets:hover:not(:disabled) {
+    background: rgba(15,157,88,0.1);
+    border-color: #0f9d58;
+    color: #0f9d58;
+    box-shadow: 0 0 16px rgba(15,157,88,0.2);
+  }
+
+  .btn-group {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 24px;
+  }
+
+  /* ── Loading ──────────────────────────────────────────── */
+  .spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    display: inline-block;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(10,10,15,0.7);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius);
+    z-index: 10;
+  }
+
+  /* ── Toast ────────────────────────────────────────────── */
+  .toast-container {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .toast {
+    padding: 14px 20px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 500;
+    box-shadow: var(--shadow);
+    animation: slideIn 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 300px;
+  }
+
+  .toast.success {
+    background: rgba(16,185,129,0.15);
+    border: 1px solid rgba(16,185,129,0.3);
+    color: var(--success);
+  }
+
+  .toast.error {
+    background: rgba(239,68,68,0.15);
+    border: 1px solid rgba(239,68,68,0.3);
+    color: var(--danger);
+  }
+
+  .toast.info {
+    background: rgba(99,102,241,0.15);
+    border: 1px solid rgba(99,102,241,0.3);
+    color: var(--accent);
+  }
+
+  @keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+
+  /* ── Summary Cards ────────────────────────────────────── */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .stat-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 20px;
+    text-align: center;
+  }
+
+  .stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .stat-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .stat-card.blue .stat-value { color: #60a5fa; }
+  .stat-card.green .stat-value { color: var(--success); }
+  .stat-card.yellow .stat-value { color: var(--warning); }
+  .stat-card.purple .stat-value { color: #a78bfa; }
+
+  /* ── Data Table ───────────────────────────────────────── */
+  .data-table-wrap {
+    overflow-x: auto;
+    margin-top: 16px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+  }
+
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .data-table thead th {
+    background: var(--bg-secondary);
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+  }
+
+  .data-table tbody td {
+    padding: 10px 16px;
+    border-bottom: 1px solid rgba(42,42,58,0.5);
+  }
+
+  .data-table tbody tr:hover {
+    background: var(--bg-hover);
+  }
+
+  .shift-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .shift-badge.s1 { background: rgba(96,165,250,0.15); color: #60a5fa; }
+  .shift-badge.s2 { background: rgba(167,139,250,0.15); color: #a78bfa; }
+  .shift-badge.s3 { background: rgba(251,191,36,0.15); color: #fbbf24; }
+  .shift-badge.s12 { background: rgba(52,211,153,0.15); color: #34d399; }
+  .shift-badge.s23 { background: rgba(251,146,60,0.15); color: #fb923c; }
+  .shift-badge.off { background: rgba(100,116,139,0.15); color: #64748b; }
+  .shift-badge.is { background: rgba(239,68,68,0.15); color: #ef4444; }
+
+  /* ── JSON Preview ─────────────────────────────────────── */
+  .json-preview {
+    background: var(--bg-primary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 20px;
+    max-height: 400px;
+    overflow: auto;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-size: 12px;
+    line-height: 1.7;
+    color: var(--text-muted);
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .json-preview::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .json-preview::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .json-preview::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+  }
+
+  /* ── Sections (hidden by default) ─────────────────────── */
+  .section { display: none; }
+  .section.visible { display: block; animation: fadeIn 0.4s ease; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Responsive ───────────────────────────────────────── */
+  @media (max-width: 640px) {
+    .container { padding: 24px 16px; }
+    .card { padding: 24px 20px; }
+    .header h1 { font-size: 24px; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .pipeline { gap: 4px; }
+    .pipeline-step { padding: 8px 12px; font-size: 11px; }
+    .pipeline-arrow { font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<div class="container">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-icon">📊</div>
+    <h1>Timesheet Cleaner</h1>
+    <p>Load Google Sheets → Preview Data → Generate Timesheet DOCX</p>
+  </div>
+
+  <!-- Pipeline -->
+  <div class="pipeline">
+    <div class="pipeline-step active" id="step1">
+      <span class="step-num">1</span> Google Sheets
+    </div>
+    <span class="pipeline-arrow">→</span>
+    <div class="pipeline-step" id="step2">
+      <span class="step-num">2</span> Pilih Nama
+    </div>
+    <span class="pipeline-arrow">→</span>
+    <div class="pipeline-step" id="step3">
+      <span class="step-num">3</span> Preview Data
+    </div>
+    <span class="pipeline-arrow">→</span>
+    <div class="pipeline-step" id="step4">
+      <span class="step-num">4</span> Download
+    </div>
+  </div>
+
+  <!-- Step 1: Google Sheets URL / ID -->
+  <div class="card" id="uploadCard">
+    <div class="card-title">📊 Masukan Link Google Spreadsheet nya</div>
+    <div class="card-subtitle">Tempelkan link URL atau ID Google Spreadsheet terbaru Anda di bawah ini (kosongkan jika sudah diatur via .env)</div>
+
+    <div style="margin: 24px 0 16px 0;">
+      <div style="position: relative; display: flex; align-items: center;">
+        <span style="position: absolute; left: 16px; font-size: 20px; pointer-events: none;">📊</span>
+        <input type="text" id="sheetUrlInput" placeholder="https://docs.google.com/spreadsheets/d/... (Opsional bila sudah diset di .env)" 
+               onkeydown="if(event.key==='Enter'){loadFromSheets()}"
+               style="width: 100%; padding: 16px 16px 16px 48px; border-radius: 14px; border: 1px solid var(--border-color); background: rgba(255, 255, 255, 0.04); color: var(--text-color); font-size: 14px; transition: border-color 0.2s, box-shadow 0.2s; outline: none;">
+      </div>
+    </div>
+
+    <!-- Load from Google Sheets button -->
+    <div style="margin-top: 24px; text-align: center;">
+      <button class="btn btn-outline btn-sheets" id="loadSheetsBtn" onclick="loadFromSheets()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="vertical-align: middle; margin-right: 6px;">
+          <path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" stroke="#0f9d58" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Load from Google Sheets
+      </button>
+      <div id="sheetsStatus" style="margin-top: 10px; font-size: 13px; color: var(--text-muted);"></div>
+    </div>
+  </div>
+
+  <!-- Step 2: Select Name -->
+  <div class="card section" id="selectCard">
+    <div class="card-title">👤 Pilih Konsultan</div>
+    <div class="card-subtitle">Pilih nama konsultan dari jadwal shifting</div>
+
+    <div class="form-group">
+      <label class="form-label">Nama Konsultan</label>
+      <select id="nameSelect" disabled>
+        <option value="">-- Pilih Nama --</option>
+      </select>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-primary" id="processBtn" disabled onclick="processData()">
+        ⚡ Proses Data
+      </button>
+    </div>
+  </div>
+
+  <!-- Step 3: Preview -->
+  <div class="card section" id="previewCard">
+    <div class="card-title">📋 Data Preview</div>
+    <div class="card-subtitle" id="previewSubtitle">Hasil pemrosesan timesheet</div>
+
+    <div class="stats-grid" id="statsGrid"></div>
+
+    <div class="data-table-wrap" style="max-height: 400px; overflow-y: auto;">
+      <table class="data-table" id="dataTable">
+        <thead>
+          <tr>
+            <th>Tanggal</th>
+            <th>Shift</th>
+            <th>Jam</th>
+            <th>Open</th>
+            <th>Closed</th>
+            <th>Remark</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Step 4: Download -->
+  <div class="card section" id="downloadCard">
+    <div class="card-title">📥 Download</div>
+    <div class="card-subtitle" id="downloadSubtitle">Timesheet siap diunduh</div>
+
+    <div class="btn-group">
+      <button class="btn btn-success" onclick="generateDocx(event)">
+        📄 Download DOCX
+      </button>
+      <button class="btn btn-outline" onclick="resetAll()">
+        🔄 Proses Lagi
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── State ─────────────────────────────────────────────────
+  let uploadedFilename = null;
+  let jsonFilename = null;
+  let processedData = null;
+  let dataSource = null;  // 'excel' or 'sheets'
+
+  const $ = id => document.getElementById(id);
+
+  // ── Toast ─────────────────────────────────────────────────
+  function toast(msg, type = 'info') {
+    const container = $('toastContainer');
+    if (!container) return;
+    const el = document.createElement('div');
+    el.className = `toast ${type}`;
+    const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+    el.innerHTML = `<span>${icons[type] || ''}</span><span>${msg}</span>`;
+    container.appendChild(el);
+    setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 300); }, 4000);
+  }
+
+  // ── Pipeline Steps ────────────────────────────────────────
+  function setStep(n) {
+    for (let i = 1; i <= 4; i++) {
+      const el = $(`step${i}`);
+      if (!el) continue;
+      el.classList.remove('active', 'done');
+      if (i < n) el.classList.add('done');
+      else if (i === n) el.classList.add('active');
+    }
+  }
+
+  /* ============================================================
+     [DISABLED: EXCEL UPLOAD JS]
+     Untuk mengaktifkan kembali upload Excel (.xlsx/.xls), uncomment
+     blok script di bawah ini:
+     ============================================================
+  const uploadZone = $('uploadZone');
+  const fileInput = $('fileInput');
+
+  if (uploadZone && fileInput) {
+    uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+    uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+    uploadZone.addEventListener('drop', e => {
+      e.preventDefault();
+      uploadZone.classList.remove('dragover');
+      if (e.dataTransfer.files.length) {
+        fileInput.files = e.dataTransfer.files;
+        handleFile(e.dataTransfer.files[0]);
+      }
+    });
+    fileInput.addEventListener('change', () => { if (fileInput.files.length) handleFile(fileInput.files[0]); });
+  }
+
+  function formatSize(bytes) {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / 1048576).toFixed(1) + ' MB';
+  }
+
+  async function handleFile(file) {
+    if (!file.name.match(/\.xlsx?$/i)) {
+      toast('File harus berformat .xlsx atau .xls', 'error');
+      return;
+    }
+
+    if ($('fileName')) $('fileName').textContent = file.name;
+    if ($('fileSize')) $('fileSize').textContent = formatSize(file.size);
+    if ($('uploadPlaceholder')) $('uploadPlaceholder').style.display = 'none';
+    if ($('fileSelected')) $('fileSelected').style.display = 'block';
+    if (uploadZone) uploadZone.classList.add('has-file');
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const res = await fetch('/api/upload', { method: 'POST', body: formData });
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.detail || 'Upload gagal');
+
+      uploadedFilename = data.filename;
+      dataSource = 'excel';
+      toast(data.message, 'success');
+
+      // Populate names
+      const select = $('nameSelect');
+      select.innerHTML = '<option value="">-- Pilih Nama --</option>';
+      data.names.forEach(n => {
+        const opt = document.createElement('option');
+        opt.value = n;
+        opt.textContent = n;
+        select.appendChild(opt);
+      });
+      select.disabled = false;
+      $('processBtn').disabled = false;
+
+      $('selectCard').classList.add('visible');
+      setStep(2);
+
+    } catch (err) {
+      toast(err.message, 'error');
+    }
+  }
+  */
+
+  // ── Load from Google Sheets ────────────────────────────────
+  async function loadFromSheets() {
+    const sheetVal = $('sheetUrlInput') ? $('sheetUrlInput').value.trim() : '';
+
+    const btn = $('loadSheetsBtn');
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Loading...';
+    }
+    if ($('sheetsStatus')) $('sheetsStatus').textContent = 'Mengambil data dari Google Sheets...';
+
+    const formData = new FormData();
+    formData.append('sheet_id', sheetVal);
+
+    try {
+      const res = await fetch('/api/load-from-sheets', {
+        method: 'POST',
+        body: formData
+      });
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.detail || 'Gagal load Google Sheets');
+
+      dataSource = 'sheets';
+      uploadedFilename = null;  // no file needed for sheets flow
+
+      toast(data.message, 'success');
+      if ($('sheetsStatus')) $('sheetsStatus').textContent = `✓ ${data.names.length} nama ditemukan di Google Sheets`;
+
+      // Populate names dropdown
+      const select = $('nameSelect');
+      if (select) {
+        select.innerHTML = '<option value="">-- Pilih Nama --</option>';
+        data.names.forEach(n => {
+          const opt = document.createElement('option');
+          opt.value = n;
+          opt.textContent = n;
+          select.appendChild(opt);
+        });
+        select.disabled = false;
+      }
+
+      if ($('selectCard')) $('selectCard').classList.add('visible');
+      if ($('processBtn')) $('processBtn').disabled = false;
+      setStep(2);
+
+    } catch (err) {
+      toast(err.message, 'error');
+      if ($('sheetsStatus')) $('sheetsStatus').textContent = '';
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="vertical-align: middle; margin-right: 6px;"><path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" stroke="#0f9d58" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Load from Google Sheets`;
+      }
+    }
+  }
+
+  // ── Name Select ───────────────────────────────────────────
+  $('nameSelect').addEventListener('change', function() {
+    $('processBtn').disabled = false;
+  });
+
+  // ── Process ───────────────────────────────────────────────
+  async function processData() {
+    const name = $('nameSelect').value;
+    if (!name) {
+      toast('Silakan pilih nama konsultan terlebih dahulu!', 'error');
+      $('nameSelect').focus();
+      return;
+    }
+    if (!uploadedFilename && dataSource !== 'sheets') {
+      toast('Silakan upload file Excel atau load dari Google Sheets terlebih dahulu!', 'error');
+      return;
+    }
+
+    const btn = $('processBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Memproses...';
+
+    const formData = new FormData();
+    if (dataSource === 'sheets') {
+      formData.append('filename', '');  // empty filename for sheets flow
+      formData.append('source', 'sheets');
+    } else {
+      formData.append('filename', uploadedFilename);
+      formData.append('source', 'excel');
+    }
+    formData.append('name', name);
+
+    try {
+      const res = await fetch('/api/process', { method: 'POST', body: formData });
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.detail || 'Gagal memproses');
+
+      jsonFilename = data.json_filename;
+      processedData = data.data;
+      toast(data.message, 'success');
+
+      renderPreview(data.data);
+      if ($('previewCard')) $('previewCard').classList.add('visible');
+      if ($('downloadCard')) $('downloadCard').classList.add('visible');
+      if ($('downloadSubtitle')) $('downloadSubtitle').textContent = `${data.data.employee_name} — ${data.data.month_label}`;
+      setStep(4);
+
+    } catch (err) {
+      toast(err.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '⚡ Proses Data';
+    }
+  }
+
+  // ── Render Preview ────────────────────────────────────────
+  function renderPreview(data) {
+    const summary = data.summary || [];
+    const totalOpen = summary.reduce((a, s) => a + s.open, 0);
+    const totalClosed = summary.reduce((a, s) => a + s.closed, 0);
+    const workDays = data.days.filter(d => d.type !== 'OFF' && d.type !== 'IS').length;
+    const offDays = data.days.filter(d => d.type === 'OFF').length;
+
+    if ($('previewSubtitle')) $('previewSubtitle').textContent = `${data.employee_name} — ${data.month_label}`;
+    if ($('statsGrid')) {
+      $('statsGrid').innerHTML = `
+        <div class="stat-card blue"><div class="stat-value">${workDays}</div><div class="stat-label">Hari Kerja</div></div>
+        <div class="stat-card yellow"><div class="stat-value">${offDays}</div><div class="stat-label">Hari OFF</div></div>
+        <div class="stat-card green"><div class="stat-value">${totalOpen}</div><div class="stat-label">Open Ticket</div></div>
+        <div class="stat-card purple"><div class="stat-value">${totalClosed}</div><div class="stat-label">Closed Ticket</div></div>
+      `;
+    }
+
+    const tbody = $('tableBody');
+    if (tbody) {
+      tbody.innerHTML = '';
+      data.days.forEach(d => {
+        const shiftType = d.type.toLowerCase().replace('s','');
+        let badgeClass = shiftType;
+        if (d.type === 'OFF') badgeClass = 'off';
+        if (d.type === 'IS') badgeClass = 'is';
+
+        let open = 0, closed = 0;
+        if (d.type === 'S12') {
+          open = Object.values(d.open_s1 || {}).reduce((a,b) => a+b, 0) + Object.values(d.open_s2 || {}).reduce((a,b) => a+b, 0);
+          closed = Object.values(d.closed_s1 || {}).reduce((a,b) => a+b, 0) + Object.values(d.closed_s2 || {}).reduce((a,b) => a+b, 0);
+        } else if (d.type === 'S23') {
+          open = Object.values(d.open_s2 || {}).reduce((a,b) => a+b, 0) + Object.values(d.open_s3 || {}).reduce((a,b) => a+b, 0);
+          closed = Object.values(d.closed_s2 || {}).reduce((a,b) => a+b, 0) + Object.values(d.closed_s3 || {}).reduce((a,b) => a+b, 0);
+        } else if (d.type !== 'OFF' && d.type !== 'IS') {
+          open = Object.values(d.open || {}).reduce((a,b) => a+b, 0);
+          closed = Object.values(d.closed || {}).reduce((a,b) => a+b, 0);
+        }
+
+        const isOffOrIS = d.type === 'OFF' || d.type === 'IS';
+        const time = isOffOrIS ? '' : `${d.start || '-'} — ${d.end || '-'}`;
+        const remark = d.type === 'OFF' ? 'OFF' : d.type === 'IS' ? 'Izin Sakit' : d.remark || d.type;
+
+        tbody.innerHTML += `
+          <tr style="${isOffOrIS ? 'background: rgba(100,116,139,0.08);' : ''}">
+            <td>${d.date}</td>
+            <td><span class="shift-badge ${badgeClass}">${d.shift}</span></td>
+            <td style="font-family:monospace;font-size:12px">${time}</td>
+            <td style="text-align:center;font-weight:600;color:${!isOffOrIS && open > 0 ? '#60a5fa' : 'var(--text-dim)'}">${isOffOrIS ? '' : (open || '-')}</td>
+            <td style="text-align:center;font-weight:600;color:${!isOffOrIS && closed > 0 ? 'var(--success)' : 'var(--text-dim)'}">${isOffOrIS ? '' : (closed || '-')}</td>
+            <td style="color:var(--text-muted)">${remark}</td>
+          </tr>
+        `;
+      });
+    }
+
+    if ($('jsonPreview')) $('jsonPreview').textContent = JSON.stringify(data, null, 2);
+  }
+
+  // ── Generate DOCX ─────────────────────────────────────────
+  async function generateDocx(event) {
+    if (!jsonFilename) return toast('Proses data dulu', 'error');
+
+    const btn = event.target;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Generating...';
+
+    const formData = new FormData();
+    formData.append('json_filename', jsonFilename);
+
+    try {
+      const res = await fetch('/api/generate-docx', { method: 'POST', body: formData });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.detail || 'Gagal generate DOCX');
+      }
+
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = jsonFilename.replace('.json', '.docx');
+      a.click();
+      URL.revokeObjectURL(url);
+
+      toast('DOCX berhasil didownload!', 'success');
+
+    } catch (err) {
+      toast(err.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '📄 Download DOCX';
+    }
+  }
+
+  // ── Download JSON ─────────────────────────────────────────
+  async function downloadJson() {
+    if (!jsonFilename) return toast('Proses data dulu', 'error');
+
+    const formData = new FormData();
+    formData.append('json_filename', jsonFilename);
+
+    try {
+      const res = await fetch('/api/download-json', { method: 'POST', body: formData });
+      if (!res.ok) throw new Error('Gagal download JSON');
+
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = jsonFilename;
+      a.click();
+      URL.revokeObjectURL(url);
+
+      toast('JSON berhasil didownload!', 'success');
+    } catch (err) {
+      toast(err.message, 'error');
+    }
+  }
+
+  // ── Reset ─────────────────────────────────────────────────
+  function resetAll() {
+    uploadedFilename = null;
+    jsonFilename = null;
+    processedData = null;
+    dataSource = null;
+
+    if ($('fileInput')) $('fileInput').value = '';
+    if ($('uploadPlaceholder')) $('uploadPlaceholder').style.display = '';
+    if ($('fileSelected')) $('fileSelected').style.display = 'none';
+    if (uploadZone) uploadZone.classList.remove('has-file');
+    if ($('selectCard')) $('selectCard').classList.remove('visible');
+    if ($('previewCard')) $('previewCard').classList.remove('visible');
+    if ($('downloadCard')) $('downloadCard').classList.remove('visible');
+    if ($('nameSelect')) {
+      $('nameSelect').innerHTML = '<option value="">-- Pilih Nama --</option>';
+      $('nameSelect').disabled = true;
+    }
+    if ($('processBtn')) $('processBtn').disabled = true;
+    if ($('sheetsStatus')) $('sheetsStatus').textContent = '';
+
+    setStep(1);
+    toast('Siap memulai ulang', 'info');
+  }
+</script>
+</body>
+</html>

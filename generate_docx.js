@@ -1,0 +1,375 @@
+/**
+ * generate_docx.js
+ * ----------------
+ * Membaca JSON hasil process_data.py dan menghasilkan file .docx timesheet.
+ *
+ * Usage:
+ *   node generate_docx.js --input timesheet_data.json --logo path/to/logo.png --output Timesheet_Output.docx
+ *
+ * Dependencies:
+ *   npm install -g docx
+ */
+
+const {
+  Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell,
+  AlignmentType, BorderStyle, WidthType, ShadingType, VerticalAlign,
+  PageNumber, UnderlineType, Footer, ImageRun
+} = require('docx');
+const fs = require('fs');
+const path = require('path');
+
+// ── CLI Args ──────────────────────────────────────────────────────────────────
+const args = process.argv.slice(2);
+function getArg(name) {
+  const idx = args.indexOf(name);
+  return idx !== -1 ? args[idx + 1] : null;
+}
+
+const inputPath  = getArg('--input')  || 'timesheet_data.json';
+const logoPath   = getArg('--logo')   || path.join(__dirname, 'logo.png');
+const outputPath = getArg('--output') || null;
+
+if (!fs.existsSync(inputPath)) {
+  console.error(`[ERROR] File input tidak ditemukan: ${inputPath}`);
+  process.exit(1);
+}
+
+// ── Load Data ─────────────────────────────────────────────────────────────────
+const data = JSON.parse(fs.readFileSync(inputPath, 'utf8'));
+const {
+  employee_name, consultant_role, month_label, prepared_date,
+  tasks, days, notes
+} = data;
+
+// Pad days to ensure table covers the full month (dynamic based on data)
+const year = data.year || new Date().getFullYear();
+const month = data.month || new Date().getMonth() + 1;
+const MAX_DAY = new Date(year, month, 0).getDate(); // days in month
+if (days.length < MAX_DAY) {
+  for (let d = days.length + 1; d <= MAX_DAY; d++) {
+    days.push({
+      day: d,
+      date: `${String(d).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year}`,
+      type: 'OFF',
+      shift: 'OFF',
+      color: 'blue'
+    });
+  }
+}
+
+// ── Load Logo ─────────────────────────────────────────────────────────────────
+let logoBuffer = null;
+if (fs.existsSync(logoPath)) {
+  logoBuffer = fs.readFileSync(logoPath);
+  console.log(`Logo dimuat dari: ${logoPath}`);
+} else {
+  console.warn(`[WARNING] Logo tidak ditemukan di: ${logoPath} — timesheet akan dibuat tanpa logo`);
+}
+
+// ── Output filename ───────────────────────────────────────────────────────────
+const safeName    = employee_name.replace(/\s+/g, '_');
+const safeMonth   = month_label.replace(/\s+/g, '_');
+const finalOutput = outputPath || `Timesheet_${safeMonth}_${safeName}.docx`;
+
+// ============================================================
+// STYLE CONSTANTS
+// ============================================================
+const FONT            = 'Arial';
+const FONT_SIZE_BODY  = 16;   // 8pt (half-points)
+const FONT_SIZE_HDR   = 18;   // 9pt
+const FONT_SIZE_TITLE = 28;   // 14pt
+const CELL_MARGINS    = { top: 50, bottom: 50, left: 100, right: 100 };
+
+const noBorder   = { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' };
+const noBorders  = { top: noBorder, bottom: noBorder, left: noBorder, right: noBorder };
+const thinBorder = { style: BorderStyle.SINGLE, size: 4, color: '000000' };
+const cellBorders = { top: thinBorder, bottom: thinBorder, left: thinBorder, right: thinBorder };
+
+// ============================================================
+// HELPERS
+// ============================================================
+function txt(text, opts = {}) {
+  return new TextRun({
+    text: String(text),
+    font: FONT,
+    size: opts.size || FONT_SIZE_BODY,
+    bold: opts.bold || false,
+    underline: opts.underline ? { type: UnderlineType.SINGLE } : undefined,
+    italics: opts.italic || false,
+  });
+}
+
+function para(runs, opts = {}) {
+  return new Paragraph({
+    alignment: opts.align || AlignmentType.LEFT,
+    spacing: { before: 0, after: opts.spaceAfter !== undefined ? opts.spaceAfter : 20 },
+    children: Array.isArray(runs) ? runs : [runs],
+  });
+}
+
+function makeCell(children, opts = {}) {
+  return new TableCell({
+    borders: opts.borders || cellBorders,
+    width: { size: opts.width || 1000, type: WidthType.DXA },
+    margins: CELL_MARGINS,
+    verticalAlign: opts.vAlign || VerticalAlign.TOP,
+    shading: opts.shading ? { fill: opts.shading, type: ShadingType.CLEAR } : undefined,
+    children: Array.isArray(children) ? children : [children],
+  });
+}
+
+// ============================================================
+// TICKET BLOCK
+// ============================================================
+function ticketBlock(openMap, closedMap, subLabel) {
+  const paras = [];
+  if (subLabel) paras.push(para(txt(subLabel, { bold: true })));
+
+  // Open
+  const openTotal = Object.values(openMap).reduce((a, b) => a + b, 0);
+  paras.push(para(txt('Open Ticket', { bold: true })));
+  for (const [name, count] of Object.entries(openMap).sort((a, b) => a[0].localeCompare(b[0])))
+    paras.push(para([txt(name), txt(`  ${count}`)]));
+  paras.push(para([txt('Grand Total  ', { bold: true }), txt(String(openTotal), { bold: true })]));
+
+  // Closed
+  const closedTotal = Object.values(closedMap).reduce((a, b) => a + b, 0);
+  paras.push(para(txt('Closed Ticket', { bold: true })));
+  for (const [name, count] of Object.entries(closedMap).sort((a, b) => a[0].localeCompare(b[0])))
+    paras.push(para([txt(name), txt(`  ${count}`)]));
+  paras.push(para([txt('Grand Total  ', { bold: true }), txt(String(closedTotal), { bold: true })]));
+
+  return paras;
+}
+
+// ============================================================
+// TASK CELL CONTENT
+// ============================================================
+function taskCellContent(dayData) {
+  const paras = [];
+
+  if (dayData.type === 'OFF' || dayData.type === 'IS') {
+    paras.push(para(txt('')));
+    return paras;
+  }
+
+  // Filter notes by color
+  const color = dayData.color || 'white';
+  let filteredNotes = [];
+  if (notes && notes.length > 0) {
+    if (color === 'yellow') {
+      filteredNotes = notes.slice(0, 4);  // rows 1-4
+    } else if (color === 'green') {
+      filteredNotes = notes.slice(4, 7);  // rows 5-7
+    } else {
+      filteredNotes = notes;  // white/brown: all rows 1-7
+    }
+  } else {
+    filteredNotes = tasks || [];
+  }
+
+  for (const task of filteredNotes)
+    paras.push(para(txt(task.startsWith('- ') ? task : '- ' + task)));
+
+  paras.push(para(txt('')));
+
+  if (dayData.type === 'S12') {
+    paras.push(para(txt('Shift 1', { bold: true })));
+    paras.push(para(txt(dayData.backup_name, { italic: true })));
+    paras.push(...ticketBlock(dayData.open_s1, dayData.closed_s1));
+    paras.push(para(txt('')));
+    paras.push(para(txt('Shift 2', { bold: true })));
+    paras.push(...ticketBlock(dayData.open_s2, dayData.closed_s2));
+  } else if (dayData.type === 'S23') {
+    paras.push(para(txt('Shift 2', { bold: true })));
+    if (dayData.backup_name) paras.push(para(txt(dayData.backup_name, { italic: true })));
+    paras.push(...ticketBlock(dayData.open_s2, dayData.closed_s2));
+    paras.push(para(txt('')));
+    paras.push(para(txt('Shift 3', { bold: true })));
+    paras.push(...ticketBlock(dayData.open_s3, dayData.closed_s3));
+  } else {
+    paras.push(...ticketBlock(dayData.open, dayData.closed));
+  }
+
+  return paras;
+}
+
+// ============================================================
+// MAIN TABLE
+// ============================================================
+const COL_WIDTHS  = [900, 5900, 750, 750, 900];
+const TABLE_WIDTH = COL_WIDTHS.reduce((a, b) => a + b, 0);
+
+function headerRow() {
+  const hdrs = ['DATE', 'Task / Activity / Project Name / Ticket no.', 'START TIME', 'END TIME', 'REMARK'];
+  return new TableRow({
+    tableHeader: false,
+    children: hdrs.map((h, i) =>
+      makeCell(
+        para(txt(h, { bold: true, size: FONT_SIZE_HDR }), { align: AlignmentType.CENTER }),
+        { width: COL_WIDTHS[i], shading: 'D9E1F2', vAlign: VerticalAlign.CENTER }
+      )
+    ),
+  });
+}
+
+function dataRow(dayData) {
+  const isOff = dayData.type === 'OFF';
+  const isIS  = dayData.type === 'IS';
+  const remark = isOff ? 'OFF' : (isIS ? 'Izin Sakit' : dayData.remark);
+  const rowShading = (isOff || isIS) ? 'F2F2F2' : undefined;
+
+  return new TableRow({
+    children: [
+      makeCell(para(txt(dayData.date), { align: AlignmentType.CENTER }), { width: COL_WIDTHS[0], shading: rowShading }),
+      makeCell(taskCellContent(dayData), { width: COL_WIDTHS[1], shading: rowShading }),
+      makeCell(para(txt(isOff || isIS ? '' : dayData.start), { align: AlignmentType.CENTER }), { width: COL_WIDTHS[2], vAlign: VerticalAlign.CENTER, shading: rowShading }),
+      makeCell(para(txt(isOff || isIS ? '' : dayData.end),   { align: AlignmentType.CENTER }), { width: COL_WIDTHS[3], vAlign: VerticalAlign.CENTER, shading: rowShading }),
+      makeCell(para(txt(remark),                              { align: AlignmentType.CENTER }), { width: COL_WIDTHS[4], vAlign: VerticalAlign.CENTER, shading: rowShading }),
+    ],
+  });
+}
+
+// ============================================================
+// INFO TABLE (Vendor, Consultant, dll)
+// ============================================================
+function infoTable() {
+  const w = [1800, 100, 2800, 1000, 100, 2400];
+  const iCell = (text, width) => new TableCell({
+    borders: noBorders,
+    width: { size: width, type: WidthType.DXA },
+    margins: { top: 30, bottom: 30, left: 80, right: 80 },
+    children: [para(txt(text))],
+  });
+  return new Table({
+    width: { size: TABLE_WIDTH, type: WidthType.DXA },
+    columnWidths: w,
+    borders: { top: noBorder, bottom: noBorder, left: noBorder, right: noBorder, insideH: noBorder, insideV: noBorder },
+    rows: [
+      new TableRow({ children: [iCell('Vendor Name',     w[0]), iCell(':', w[1]), iCell('', w[2]), iCell('Supervisor',  w[3]), iCell(':', w[4]), iCell('', w[5])] }),
+      new TableRow({ children: [iCell('Consultant name', w[0]), iCell(':', w[1]), iCell(employee_name, w[2]), iCell('PIC Onsite', w[3]), iCell(':', w[4]), iCell('', w[5])] }),
+      new TableRow({ children: [iCell('Consultant role', w[0]), iCell(':', w[1]), iCell(consultant_role, w[2]), iCell('', w[3]), iCell('', w[4]), iCell('', w[5])] }),
+    ],
+  });
+}
+
+// ============================================================
+// SIGNATURE TABLE
+// ============================================================
+function signatureTable() {
+  const sigW = Math.floor(TABLE_WIDTH / 3);
+  const rem  = TABLE_WIDTH - sigW * 2;
+  const sCell = (lines, w, boldLines = [], align = AlignmentType.CENTER) => new TableCell({
+    borders: cellBorders,
+    width: { size: w, type: WidthType.DXA },
+    margins: { top: 60, bottom: 60, left: 100, right: 100 },
+    children: lines.map((l, i) => para(txt(l, { bold: boldLines.includes(i) }), { align })),
+  });
+  return new Table({
+    width: { size: TABLE_WIDTH, type: WidthType.DXA },
+    columnWidths: [sigW, sigW, rem],
+    rows: [
+      new TableRow({ children: [
+        sCell(['Prepared By,'], sigW, [0], AlignmentType.CENTER),
+        sCell(['Team Lead SDK'], sigW, [0], AlignmentType.CENTER),
+        sCell(['PIC Onsite'], rem, [0], AlignmentType.CENTER)
+      ] }),
+      new TableRow({ children: [
+        sCell([employee_name], sigW, [], AlignmentType.CENTER),
+        sCell([''], sigW, [], AlignmentType.CENTER),
+        sCell([''], rem, [], AlignmentType.CENTER)
+      ] }),
+      new TableRow({ children: [
+        sCell(['', '', ''], sigW),
+        sCell(['', '', ''], sigW),
+        sCell(['', '', ''], rem)
+      ] }),
+      new TableRow({ children: [
+        sCell([`Date : ${prepared_date}`], sigW, [], AlignmentType.CENTER),
+        sCell([`Date : ${prepared_date}`], sigW, [], AlignmentType.CENTER),
+        sCell([`Date : ${prepared_date}`], rem, [], AlignmentType.CENTER)
+      ] }),
+    ],
+  });
+}
+
+// ============================================================
+// BUILD DOCUMENT
+// ============================================================
+const logoParaChildren = [];
+if (logoBuffer) {
+  logoParaChildren.push(
+    new ImageRun({
+      data: logoBuffer,
+      transformation: { width: 242, height: 160 },
+      type: 'png',
+    })
+  );
+}
+
+const docChildren = [];
+
+// Logo (jika ada)
+if (logoParaChildren.length > 0) {
+  docChildren.push(new Paragraph({
+    alignment: AlignmentType.CENTER,
+    spacing: { before: 0, after: 80 },
+    children: logoParaChildren,
+  }));
+}
+
+// Judul TIMESHEET
+docChildren.push(new Paragraph({
+  alignment: AlignmentType.CENTER,
+  spacing: { before: 0, after: 120 },
+  children: [txt('TIMESHEET', { bold: true, underline: true, size: FONT_SIZE_TITLE })],
+}));
+
+// Info table
+docChildren.push(infoTable());
+docChildren.push(new Paragraph({ spacing: { before: 120, after: 120 }, children: [] }));
+
+// Main table
+docChildren.push(new Table({
+  width: { size: TABLE_WIDTH, type: WidthType.DXA },
+  columnWidths: COL_WIDTHS,
+  rows: [headerRow(), ...days.map(d => dataRow(d))],
+}));
+
+// Signature
+docChildren.push(new Paragraph({ spacing: { before: 240, after: 120 }, children: [] }));
+docChildren.push(signatureTable());
+
+// Document
+const doc = new Document({
+  sections: [{
+    properties: {
+      page: {
+        size: { width: 12240, height: 15840 },
+        margin: { top: 720, right: 720, bottom: 720, left: 720 },
+      },
+    },
+    footers: {
+      default: new Footer({
+        children: [
+          para([
+            txt('Page '),
+            new TextRun({ children: [PageNumber.CURRENT], font: FONT, size: FONT_SIZE_BODY }),
+            txt(' of '),
+            new TextRun({ children: [PageNumber.TOTAL_PAGES], font: FONT, size: FONT_SIZE_BODY }),
+          ], { align: AlignmentType.RIGHT }),
+        ],
+      }),
+    },
+    children: docChildren,
+  }],
+});
+
+// ── Write output ──────────────────────────────────────────────────────────────
+Packer.toBuffer(doc).then(buf => {
+  fs.writeFileSync(finalOutput, buf);
+  console.log(`✅ Timesheet berhasil dibuat: ${finalOutput}`);
+}).catch(err => {
+  console.error('[ERROR] Gagal generate docx:', err);
+  process.exit(1);
+});

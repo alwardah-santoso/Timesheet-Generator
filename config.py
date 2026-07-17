@@ -28,7 +28,7 @@ class Settings(BaseSettings):
 
     # ── Server Settings ────────────────────────────────────────────────────
     server_host: str = "0.0.0.0"
-    server_port: int = 8768
+    server_port: int = 8769
     log_file: str = "server.log"
 
     # ── Google Sheets & Apps Script Adapter Settings ───────────────────────

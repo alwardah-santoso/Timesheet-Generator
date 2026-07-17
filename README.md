@@ -71,7 +71,7 @@ Anda memiliki **2 Pilihan Cara Memuat Data Spreadsheet**:
 
 ### 🌟 Cara Utama (Direkomendasikan): Langsung via Halaman Web UI (`index.html`)
 Setiap bulan saat link spreadsheet berganti, Anda **tidak perlu mengedit file apa pun (`.env` ataupun kode python)**.
-1. Buka dasbor web di browser (`http://localhost:8768`).
+1. Buka dasbor web di browser (`http://localhost:8769`).
 2. Tempelkan link URL Google Spreadsheet bulan terbaru pada kotak input **"Masukan Link Google Spreadsheet nya"**.
 3. Klik tombol **Load from Google Sheets**. Sistem otomatis mengekstrak ID dan langsung memuat data terbaru secara *real-time*!
 
@@ -90,13 +90,13 @@ Jika Anda ingin link tertentu dimuat secara otomatis sebagai default tanpa perlu
 Jalankan server FastAPI menggunakan `uvicorn` atau langsung melalui Python:
 
 ```bash
-uvicorn server:app --host 0.0.0.0 --port 8768 --reload
+uvicorn server:app --host 0.0.0.0 --port 8769 --reload
 # atau
 python3 server.py
 ```
 
 Buka browser dan akses dasbor web pada URL:
-👉 **http://localhost:8768**
+👉 **http://localhost:8769**
 
 ---
 

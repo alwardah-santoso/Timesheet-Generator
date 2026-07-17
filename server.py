@@ -232,7 +232,7 @@ if __name__ == '__main__':
     uvicorn.run(
         app,
         host='0.0.0.0',
-        port=8768,
+        port=8769,
         log_level='info',
         timeout_keep_alive=30,
     )

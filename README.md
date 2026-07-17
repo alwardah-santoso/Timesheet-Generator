@@ -63,20 +63,25 @@ Aplikasi berbasis web (FastAPI & Node.js) untuk membersihkan, memproses, dan mer
 
 ---
 
-## ⚙️ Konfigurasi (Tanpa Hardcode!)
+## ⚙️ Cara Memuat Spreadsheet Bulanan (100% Dinamis dari UI Web)
 
-Proyek ini telah dirancang 100% dinamis sehingga link Google Spreadsheet bulanan tidak ditanam (*hardcode*) di dalam kode program.
+Proyek ini telah dirancang sepenuhnya dinamis sehingga link Google Spreadsheet bulanan **tidak lagi ditanam (hardcode) di dalam kode program maupun file konfigurasi**.
 
-Salin template konfigurasi `.env.example` menjadi `.env`:
-```bash
-cp .env.example .env
-```
+Anda memiliki **2 Pilihan Cara Memuat Data Spreadsheet**:
 
-Buka file `.env` dan atur ID Google Spreadsheet bulanan Anda (opsional jika ingin memuat otomatis tanpa input di Web UI):
-```env
-TIMESHEET_SS_ID=https://docs.google.com/spreadsheets/d/ID_SPREADSHEET_ANDA/edit
-```
-*(Catatan: Anda juga bisa mengosongkan nilai ini di `.env` dan memasukkan link spreadsheet langsung di kolom input pada halaman web).*
+### 🌟 Cara Utama (Direkomendasikan): Langsung via Halaman Web UI (`index.html`)
+Setiap bulan saat link spreadsheet berganti, Anda **tidak perlu mengedit file apa pun (`.env` ataupun kode python)**.
+1. Buka dasbor web di browser (`http://localhost:8768`).
+2. Tempelkan link URL Google Spreadsheet bulan terbaru pada kotak input **"Masukan Link Google Spreadsheet nya"**.
+3. Klik tombol **Load from Google Sheets**. Sistem otomatis mengekstrak ID dan langsung memuat data terbaru secara *real-time*!
+
+### ⚙️ Cara Alternatif (Opsional untuk Server Admin): via File `.env`
+Jika Anda ingin link tertentu dimuat secara otomatis sebagai default tanpa perlu input di UI setiap kali server direstart:
+1. Salin template `.env.example` menjadi `.env`:
+   ```bash
+   cp .env.example .env
+   ```
+2. Isi nilai `TIMESHEET_SS_ID=https://docs.google.com/spreadsheets/d/...` pada file `.env` tersebut.
 
 ---
 

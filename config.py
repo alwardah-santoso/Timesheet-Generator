@@ -74,6 +74,15 @@ class Settings(BaseSettings):
         "POWER ELECTRCITY": "POWER ELECTRICITY",
         "DISMANTTEL": "DISMANTLE",
         "DISMANTTLE": "DISMANTLE",
+        "JAKROM LASTMILE": "JARKOM LASTMILE",
+        "APLIKAS ERROR": "APLIKASI ERROR",
+        "ROUTING GPRS": "REQ ROUTING",
+        "REQ ROUTING VSAT": "REQ ROUTING",
+        "JARINGAN LAMBAT": "JARKOM LAMBAT",
+        "DOUBLE TIKET": "UNCONFIRM",
+        "OFFINE": "OFFLINE",
+        "VANDALISME": "VANDALISME",
+        "BUILDING RENOVATION": "BUILDING RENOVATION",
     }
 
     # ── Shift Definitions (Configuration-Driven Pattern) ───────────────────

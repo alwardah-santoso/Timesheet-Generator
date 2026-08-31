@@ -44,9 +44,16 @@ def normalize_incident_title(title):
     TYPO_MAP = settings.typo_map
     if t in TYPO_MAP:
         return TYPO_MAP[t]
+
+    if t.startswith('OTHER -'):
+        return 'OTHER'
+    if 'PENURUNAN PERSENTASE' in t:
+        return 'Seluruh Remote Non - Cellular'
+
     # REAKTIVASI SIMCARD normalization (case-insensitive)
     if 'REAKTIVASI' in t:
-        return 'REAKTIVASI SIMCARD'
+        return 'REAKTIVASI SIMCARD EDC'
+
     # Pola kode tiket (misal: ABC-123, 26J41246) → REQUEST RANGING
     if re.match(r'^[0-9A-Z]+-[0-9A-Z]*$', t) or re.match(r'^[0-9]{2,}[A-Z][0-9]+$', t):
         return 'REQUEST RANGING'

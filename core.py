@@ -169,15 +169,15 @@ def build_day_data(shifts, df_open, df_closed, year, month, backup_info=None, ce
                         break
                 
                 if stype == 'S12':
-                    if backup_shift == '1':
-                        modified_remark = 'Shift 1 (Backup) & Shift 2'
-                    elif backup_shift == '2':
-                        modified_remark = 'Shift 1 & Shift 2 (Backup)'
-                elif stype == 'S23':
                     if backup_shift == '2':
-                        modified_remark = 'Shift 2 (Backup) & Shift 3'
-                    elif backup_shift == '3':
-                        modified_remark = 'Shift 2 & Shift 3 (Backup)'
+                        modified_remark = 'Shift 1 dan Shift 2 Backup'
+                    else:
+                        modified_remark = 'Shift 1 Backup dan Shift 2'
+                elif stype == 'S23':
+                    if backup_shift == '3':
+                        modified_remark = 'Shift 2 dan Shift 3 Backup'
+                    else:
+                        modified_remark = 'Shift 2 Backup dan Shift 3'
 
             if shift_str in ['1', '2']:
                 start_hr = int(sdef['start'].split(':')[0])
@@ -515,7 +515,8 @@ def process_from_sheets_data(sheets_data: dict, target_name: str = None):
     num_days = sheets_data['num_days']
     df_open = sheets_data['df_open'].copy()
     df_closed = sheets_data['df_closed'].copy()
-    backup_info = sheets_data.get('backup_info', [])
+    raw_backup_info = sheets_data.get('backup_info', [])
+    backup_info = [b for b in raw_backup_info if b.get('employee', '').strip().lower() == found_name.lower()]
     notes_list = sheets_data.get('notes_list', [])
 
     # ── Cell colors: default putih karena Google Sheets tidak punya warna sel ──

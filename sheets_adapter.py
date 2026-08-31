@@ -345,10 +345,20 @@ def build_dataframes(ss_id=None):
         # Skip header row (row 0)
         for row in raw_backup[1:]:
             try:
-                day_val = int(row[0])
+                # Google Sheets mengembalikan angka sebagai string, bisa "22" atau "22.0"
+                # int("22.0") akan ValueError, jadi normalisasi lewat float dulu
+                raw_day = str(row[0]).strip() if row[0] is not None else ''
+                if not raw_day or raw_day.lower() == 'nan':
+                    continue
+                day_val = int(float(raw_day))
                 col1 = str(row[1]).strip() if len(row) > 1 and row[1] is not None else ''
                 col2 = str(row[2]).strip() if len(row) > 2 and row[2] is not None else ''
-                shift_val = str(row[3]).strip() if len(row) > 3 and row[3] is not None else ''
+                # shift_val: normalisasi "1.0" -> "1"
+                raw_shift = str(row[3]).strip() if len(row) > 3 and row[3] is not None else ''
+                try:
+                    shift_val = str(int(float(raw_shift))) if raw_shift and raw_shift.lower() != 'nan' else ''
+                except (ValueError, TypeError):
+                    shift_val = raw_shift
 
                 if col2 and col2.lower() != 'nan':
                     # Format: tanggal, nama_karyawan, nama_backup, shift

@@ -66,8 +66,6 @@ class Settings(BaseSettings):
         "UNICONFIRM": "UNCONFIRM",
         "DISMANTEL": "DISMANTLE",
         "APLIKASI EROR": "APLIKASI ERROR",
-        "APLIKASI": "APLIKASI ERROR",
-        "TIDAK BISA AKSES APLIKASI": "APLIKASI ERROR",
     }
 
     typo_map: Dict[str, str] = {
@@ -76,27 +74,6 @@ class Settings(BaseSettings):
         "POWER ELECTRCITY": "POWER ELECTRICITY",
         "DISMANTTEL": "DISMANTLE",
         "DISMANTTLE": "DISMANTLE",
-        "APLIKAS ERROR": "APLIKASI ERROR",
-        "JAKROM LASTMILE": "JARKOM LASTMILE",
-        "JARKOM LASTIMILE": "JARKOM LASTMILE",
-        "JARKOM LASMILE": "JARKOM LASTMILE",
-        "JARKOM LASMTILE": "JARKOM LASTMILE",
-        "ROUTING": "REQ ROUTING",
-        "REQUEST ROUTING": "REQ ROUTING",
-        "ROUTING GPRS": "REQ ROUTING",
-        "REQ ROUTING MPLS": "REQ ROUTING",
-        "REQ ROUTING VSAT": "REQ ROUTING",
-        "REQUEST ROUTING VSAT": "REQ ROUTING",
-        "JARINGAN LAMBAT": "JARKOM LAMBAT",
-        "DOUBLE TIKET": "DOUBLE TICKET",
-        "OFFINE": "OFFLINE",
-        "UNCOFIRM": "UNCONFIRM",
-        "UNCOMFIRM": "UNCONFIRM",
-        "UNCONFIRNM": "UNCONFIRM",
-        "UNCONFRIRM": "UNCONFIRM",
-        "VANDALISM": "VANDALISME",
-        "VALNDALISM": "VANDALISME",
-        "BUILDING RENOVASI": "BUILDING RENOVATION",
     }
 
     # ── Shift Definitions (Configuration-Driven Pattern) ───────────────────
@@ -104,8 +81,8 @@ class Settings(BaseSettings):
         "1": {"type": "S1", "start": "06:00", "end": "15:00", "remark": "Shift 1"},
         "2": {"type": "S2", "start": "14:00", "end": "23:00", "remark": "Shift 2"},
         "3": {"type": "S3", "start": "22:00", "end": "07:00", "remark": "Shift 3"},
-        "1.2": {"type": "S12", "start": "06:00", "end": "23:00", "remark": "Shift 1&2"},
-        "2.3": {"type": "S23", "start": "14:00", "end": "07:00", "remark": "Shift 2&3"},
+        "1.2": {"type": "S12", "start": "06:00", "end": "23:00", "remark": "Shift 1 & Shift 2"},
+        "2.3": {"type": "S23", "start": "14:00", "end": "07:00", "remark": "Shift 2 & Shift 3"},
     }
 
     def __init__(self, **data):

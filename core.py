@@ -46,13 +46,7 @@ def normalize_incident_title(title):
         return TYPO_MAP[t]
     # REAKTIVASI SIMCARD normalization (case-insensitive)
     if 'REAKTIVASI' in t:
-        return 'REAKTIVASI SIMCARD EDC'
-    # OTHER normalization
-    if t.startswith('OTHER -') or t.startswith('OTHER-'):
-        return 'OTHER'
-    # PENURUNAN PERSENTASE normalization
-    if 'PENURUNAN PERSENTASE' in t:
-        return 'Seluruh Remote Non - Cellular'
+        return 'REAKTIVASI SIMCARD'
     # Pola kode tiket (misal: ABC-123, 26J41246) → REQUEST RANGING
     if re.match(r'^[0-9A-Z]+-[0-9A-Z]*$', t) or re.match(r'^[0-9]{2,}[A-Z][0-9]+$', t):
         return 'REQUEST RANGING'
@@ -152,12 +146,31 @@ def build_day_data(shifts, df_open, df_closed, year, month, backup_info=None, ce
             stype = sdef['type']
 
             # Helper untuk ambil backup_name
-            backup_name = '(Tidak Diketahui)'
+            backup_name = ''
+            backup_shift = None
+            modified_remark = sdef['remark']
             if backup_info and stype in ['S12', 'S23']:
                 for info in backup_info:
                     if info.get('day') == day:
-                        backup_name = info.get('name', '(Tidak Diketahui)')
+                        backup_name = info.get('name', '')
+                        # Normalize shift value: Excel bisa mengembalikan '1.0' bukan '1'
+                        raw_shift = str(info.get('shift', '')).strip()
+                        try:
+                            backup_shift = str(int(float(raw_shift))) if raw_shift and raw_shift.lower() != 'nan' else ''
+                        except (ValueError, TypeError):
+                            backup_shift = raw_shift
                         break
+                
+                if stype == 'S12':
+                    if backup_shift == '1':
+                        modified_remark = 'Shift 1 (Backup) & Shift 2'
+                    elif backup_shift == '2':
+                        modified_remark = 'Shift 1 & Shift 2 (Backup)'
+                elif stype == 'S23':
+                    if backup_shift == '2':
+                        modified_remark = 'Shift 2 (Backup) & Shift 3'
+                    elif backup_shift == '3':
+                        modified_remark = 'Shift 2 & Shift 3 (Backup)'
 
             if shift_str in ['1', '2']:
                 start_hr = int(sdef['start'].split(':')[0])
@@ -182,7 +195,7 @@ def build_day_data(shifts, df_open, df_closed, year, month, backup_info=None, ce
                 o2 = get_incidents(df_open, s2_start, s2_end)
                 c2 = get_incidents(df_closed, s2_start, s2_end)
                 days.append({'day': day, 'date': date_str, 'type': stype, 'shift': shift_str, 'color': color_key,
-                             'start': sdef['start'], 'end': sdef['end'], 'remark': sdef['remark'],
+                             'start': sdef['start'], 'end': sdef['end'], 'remark': modified_remark,
                              'backup_name': backup_name,
                              'open_s1': o1, 'closed_s1': c1, 'open_s2': o2, 'closed_s2': c2})
             elif shift_str == '2.3':
@@ -194,7 +207,7 @@ def build_day_data(shifts, df_open, df_closed, year, month, backup_info=None, ce
                 o3 = get_incidents(df_open, s3_start, s3_end)
                 c3 = get_incidents(df_closed, s3_start, s3_end)
                 days.append({'day': day, 'date': date_str, 'type': stype, 'shift': shift_str, 'color': color_key,
-                             'start': sdef['start'], 'end': sdef['end'], 'remark': sdef['remark'],
+                             'start': sdef['start'], 'end': sdef['end'], 'remark': modified_remark,
                              'backup_name': backup_name,
                              'open_s2': o2, 'closed_s2': c2, 'open_s3': o3, 'closed_s3': c3})
         else:
@@ -336,23 +349,31 @@ def process_excel(excel_path: str, target_name: str = None):
         df_backup = pd.read_excel(xl, sheet_name='Backup', header=None)
         for row_idx in range(1, len(df_backup)):
             try:
-                day_val = int(df_backup.iloc[row_idx, 0])
+                # Excel sering mengembalikan numeric sebagai float (misal 22.0), normalisasi ke int
+                raw_day = df_backup.iloc[row_idx, 0]
+                day_val = int(float(str(raw_day).strip()))
                 col1_val = str(df_backup.iloc[row_idx, 1]).strip() if df_backup.shape[1] > 1 else ''
                 col2_val = str(df_backup.iloc[row_idx, 2]).strip() if df_backup.shape[1] > 2 else ''
-                shift_val = str(df_backup.iloc[row_idx, 3]).strip() if df_backup.shape[1] > 3 else ''
+                # shift_val: normalisasi float -> int string (misal '1.0' -> '1')
+                raw_shift = str(df_backup.iloc[row_idx, 3]).strip() if df_backup.shape[1] > 3 else ''
+                try:
+                    shift_val = str(int(float(raw_shift))) if raw_shift and raw_shift.lower() != 'nan' else ''
+                except (ValueError, TypeError):
+                    shift_val = raw_shift
 
                 # Jika format 3/4 kolom (Karyawan Utama & Nama Backup tersedia)
                 if col2_val and col2_val.lower() != 'nan':
                     emp_name = col1_val
-                    backup_name = col2_val
+                    backup_name_val = col2_val
                     if emp_name and emp_name.lower() != 'nan' and emp_name.lower() == target_name.lower():
-                        backup_info.append({'day': day_val, 'name': backup_name, 'shift': shift_val})
+                        backup_info.append({'day': day_val, 'name': backup_name_val, 'shift': shift_val})
                 # Jika format sederhana 2 kolom (Tanggal | Nama Karyawan/Backup)
                 elif col1_val and col1_val.lower() != 'nan':
                     backup_info.append({'day': day_val, 'name': col1_val, 'shift': shift_val})
             except (ValueError, TypeError, IndexError):
                 continue
         print(f"  Backup sheet: {len(backup_info)} entries loaded")
+        print(f"  Backup entries: {backup_info}")
     else:
         # Fallback: parse dari Jadwal Shifting notes (legacy)
         if len(df_sched) > 4:

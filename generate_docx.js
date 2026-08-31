@@ -309,7 +309,7 @@ if (logoBuffer) {
   logoParaChildren.push(
     new ImageRun({
       data: logoBuffer,
-      transformation: { width: 154, height: 35 },
+      transformation: { width: 242, height: 160 },
       type: 'png',
     })
   );

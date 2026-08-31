@@ -309,7 +309,7 @@ if (logoBuffer) {
   logoParaChildren.push(
     new ImageRun({
       data: logoBuffer,
-      transformation: { width: 242, height: 160 },
+      transformation: { width: 154, height: 35 },
       type: 'png',
     })
   );
@@ -319,25 +319,39 @@ const docChildren = [];
 
 // Logo (jika ada)
 if (logoParaChildren.length > 0) {
-  docChildren.push(new Paragraph({
+  const logoPara = new Paragraph({
     alignment: AlignmentType.CENTER,
     spacing: { before: 400, after: 240 },
     children: logoParaChildren,
-  }));
+  });
+  docChildren.push(logoPara);
+  docChildren.push(new Paragraph({ spacing: { before: 0, after: 120 }, children: [] }));
 }
 
-// Judul TIMESHEET
-docChildren.push(new Paragraph({
-  alignment: AlignmentType.CENTER,
-  spacing: { before: 0, after: 120 },
-  children: [txt('TIMESHEET', { font: FONT_TITLE, bold: true, underline: true, size: FONT_SIZE_TITLE })],
-}));
+// ============================================================
+// TIMESHEET TITLE
+// ============================================================
+docChildren.push(
+  new Paragraph({
+    alignment: AlignmentType.CENTER,
+    spacing: { before: 0, after: 120 },
+    children: [
+      new TextRun({
+        text: 'TIMESHEET',
+        bold: true,
+        size: 28,
+      }),
+    ],
+  })
+);
 
-// Info table
+// ============================================================
+// INFO TABLE
+// ============================================================
 docChildren.push(infoTable());
 
 // Jarak antara info table dan main table
-// docChildren.push(new Paragraph({ spacing: { before: 40, after: 0 }, children: [] }));
+docChildren.push(new Paragraph({ spacing: { before: 40, after: 0 }, children: [] }));
 
 // Main table
 docChildren.push(new Table({

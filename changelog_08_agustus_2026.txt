@@ -1,0 +1,23 @@
+Changelog 08 Agustus 2026 (Pembaruan Malam)
+
+1. Backup Direktori
+   - Melakukan backup full directory ke file `../timesheet-cleaner-backup-20260807_231820.tar.gz` sebelum melakukan pembersihan data.
+
+2. Analisis Data Juli
+   - Melakukan forensik & analisis data menggunakan file bulan Juli (`uploads/Data_Timeshit.xlsx`) untuk mendeteksi tiket yang mirip, duplikat, dan typo yang sering dilakukan oleh user.
+   
+3. Pembaruan Rules Normalisasi Insiden (`config.py` & `core.py`)
+   - Menambahkan rules `Smart Detection` pada `core.py`:
+     - Normalisasi tiket berawalan `OTHER -` menjadi `OTHER`.
+     - Normalisasi tiket mengandung `PENURUNAN PERSENTASE` menjadi `Seluruh Remote Non - Cellular`.
+     - Mengubah normalisasi `REAKTIVASI SIMCARD` dengan menambahkan "EDC" di akhirnya menjadi `REAKTIVASI SIMCARD EDC`.
+   - Menambahkan rules `Hardcoded Mapping` (typo_map) pada `config.py`:
+     - Mapping typo `JARKOM LASTMILE` (JAKROM LASTMILE, dll).
+     - Mapping typo `APLIKASI ERROR` (APLIKAS ERROR, dll).
+     - Mapping variasi `REQ ROUTING` (ROUTING GPRS, REQ ROUTING VSAT, dll).
+     - Mapping typo JARINGAN LAMBAT ke `JARKOM LAMBAT`.
+     - Mapping typo DOUBLE TIKET, OFFINE, dan varian UNCONFIRM.
+     - Mapping khusus pencegahan untuk `VANDALISME` dan `BUILDING RENOVATION`.
+
+4. Restart Service
+   - Me-restart uvicorn server (port 8769) di background agar seluruh pembaruan rules masuk ke dalam memori aplikasi.

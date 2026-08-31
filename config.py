@@ -66,6 +66,8 @@ class Settings(BaseSettings):
         "UNICONFIRM": "UNCONFIRM",
         "DISMANTEL": "DISMANTLE",
         "APLIKASI EROR": "APLIKASI ERROR",
+        "APLIKASI": "APLIKASI ERROR",
+        "TIDAK BISA AKSES APLIKASI": "APLIKASI ERROR",
     }
 
     typo_map: Dict[str, str] = {
@@ -74,6 +76,27 @@ class Settings(BaseSettings):
         "POWER ELECTRCITY": "POWER ELECTRICITY",
         "DISMANTTEL": "DISMANTLE",
         "DISMANTTLE": "DISMANTLE",
+        "APLIKAS ERROR": "APLIKASI ERROR",
+        "JAKROM LASTMILE": "JARKOM LASTMILE",
+        "JARKOM LASTIMILE": "JARKOM LASTMILE",
+        "JARKOM LASMILE": "JARKOM LASTMILE",
+        "JARKOM LASMTILE": "JARKOM LASTMILE",
+        "ROUTING": "REQ ROUTING",
+        "REQUEST ROUTING": "REQ ROUTING",
+        "ROUTING GPRS": "REQ ROUTING",
+        "REQ ROUTING MPLS": "REQ ROUTING",
+        "REQ ROUTING VSAT": "REQ ROUTING",
+        "REQUEST ROUTING VSAT": "REQ ROUTING",
+        "JARINGAN LAMBAT": "JARKOM LAMBAT",
+        "DOUBLE TIKET": "DOUBLE TICKET",
+        "OFFINE": "OFFLINE",
+        "UNCOFIRM": "UNCONFIRM",
+        "UNCOMFIRM": "UNCONFIRM",
+        "UNCONFIRNM": "UNCONFIRM",
+        "UNCONFRIRM": "UNCONFIRM",
+        "VANDALISM": "VANDALISME",
+        "VALNDALISM": "VANDALISME",
+        "BUILDING RENOVASI": "BUILDING RENOVATION",
     }
 
     # ── Shift Definitions (Configuration-Driven Pattern) ───────────────────

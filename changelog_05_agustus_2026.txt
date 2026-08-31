@@ -1,0 +1,21 @@
+Catatan Perubahan (Changelog) - 5 Agustus 2026
+===============================================
+
+File yang dimodifikasi:
+1. generate_docx.js
+2. index.html
+
+Rincian Perubahan:
+
+[generate_docx.js]
+- Membuat file backup (generate_docx.js.before-05-08) sebelum melakukan perubahan.
+- Menghilangkan warna latar belakang (shading biru muda 'D9E1F2') pada baris header di tabel utama sehingga mengikuti warna dasar/putih.
+- Mengubah teks 'Vendor Name' yang sebelumnya kosong menjadi "PT Code Development Indonesia".
+- Merapatkan jarak antar baris pada tabel informasi (Vendor Name, Consultant Name, Consultant role, Supervisor, PIC Onsite) dengan menghilangkan margin atas-bawah dan spacing paragraf.
+- Mengatur dan menyesuaikan jarak vertikal antara tabel informasi dan tabel utama di bawahnya agar tidak terlalu jauh dan juga tidak terlalu menempel.
+
+[index.html]
+- Memperbaiki bug pada fungsi tombol "Proses Lagi".
+- Mengubah logika fungsi resetAll():
+  Sebelumnya: Fungsi ini me-reset seluruh state termasuk file Excel / Google Sheets yang sudah di-load, yang memicu error saat memilih nama konsultan lain.
+  Sesudahnya: Fungsi ini sekarang hanya me-reset data hasil proses (kembali ke langkah ke-2), namun tetap menyimpan file dan sumber data yang sudah di-load. Hal ini memungkinkan pengguna memproses banyak nama konsultan secara berurutan tanpa harus mengunggah atau me-load ulang sumber data.

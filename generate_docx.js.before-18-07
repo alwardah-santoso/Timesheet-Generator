@@ -28,7 +28,6 @@ function getArg(name) {
 const inputPath  = getArg('--input')  || 'timesheet_data.json';
 const logoPath   = getArg('--logo')   || path.join(__dirname, 'logo.png');
 const outputPath = getArg('--output') || null;
-const picOnsite  = getArg('--pic-onsite') || '';
 
 if (!fs.existsSync(inputPath)) {
   console.error(`[ERROR] File input tidak ditemukan: ${inputPath}`);
@@ -247,8 +246,8 @@ function infoTable() {
     columnWidths: w,
     borders: { top: noBorder, bottom: noBorder, left: noBorder, right: noBorder, insideH: noBorder, insideV: noBorder },
     rows: [
-      new TableRow({ children: [iCell('Vendor Name',     w[0]), iCell(':', w[1]), iCell('PT Code Development Indonesia', w[2]), iCell('Supervisor',  w[3]), iCell(':', w[4]), iCell('Mochamad Firman', w[5])] }),
-      new TableRow({ children: [iCell('Consultant name', w[0]), iCell(':', w[1]), iCell(employee_name, w[2]), iCell('PIC Onsite', w[3]), iCell(':', w[4]), iCell(picOnsite, w[5])] }),
+      new TableRow({ children: [iCell('Vendor Name',     w[0]), iCell(':', w[1]), iCell('', w[2]), iCell('Supervisor',  w[3]), iCell(':', w[4]), iCell('', w[5])] }),
+      new TableRow({ children: [iCell('Consultant name', w[0]), iCell(':', w[1]), iCell(employee_name, w[2]), iCell('PIC Onsite', w[3]), iCell(':', w[4]), iCell('', w[5])] }),
       new TableRow({ children: [iCell('Consultant role', w[0]), iCell(':', w[1]), iCell(consultant_role, w[2]), iCell('', w[3]), iCell('', w[4]), iCell('', w[5])] }),
     ],
   });
@@ -272,13 +271,13 @@ function signatureTable() {
     rows: [
       new TableRow({ children: [
         sCell(['Prepared By,'], sigW, [0], AlignmentType.CENTER),
-        sCell(['Supervisor'], sigW, [0], AlignmentType.CENTER),
+        sCell(['Team Lead SDK'], sigW, [0], AlignmentType.CENTER),
         sCell(['PIC Onsite'], rem, [0], AlignmentType.CENTER)
       ] }),
       new TableRow({ children: [
         sCell([employee_name], sigW, [], AlignmentType.CENTER),
-        sCell(['Mochamad Firman'], sigW, [], AlignmentType.CENTER),
-        sCell([picOnsite], rem, [], AlignmentType.CENTER)
+        sCell([''], sigW, [], AlignmentType.CENTER),
+        sCell([''], rem, [], AlignmentType.CENTER)
       ] }),
       new TableRow({ children: [
         sCell(['', '', ''], sigW),

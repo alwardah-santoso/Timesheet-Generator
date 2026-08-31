@@ -75,9 +75,10 @@ const finalOutput = outputPath || `Timesheet_${safeMonth}_${safeName}.docx`;
 // ============================================================
 // STYLE CONSTANTS
 // ============================================================
-const FONT            = 'Arial';
-const FONT_SIZE_BODY  = 16;   // 8pt (half-points)
-const FONT_SIZE_HDR   = 18;   // 9pt
+const FONT            = 'Calibri';
+const FONT_TITLE      = 'Calibri';
+const FONT_SIZE_BODY  = 20;   // 10pt (half-points)
+const FONT_SIZE_HDR   = 20;   // 10pt
 const FONT_SIZE_TITLE = 28;   // 14pt
 const CELL_MARGINS    = { top: 50, bottom: 50, left: 100, right: 100 };
 
@@ -92,7 +93,7 @@ const cellBorders = { top: thinBorder, bottom: thinBorder, left: thinBorder, rig
 function txt(text, opts = {}) {
   return new TextRun({
     text: String(text),
-    font: FONT,
+    font: opts.font || FONT,
     size: opts.size || FONT_SIZE_BODY,
     bold: opts.bold || false,
     underline: opts.underline ? { type: UnderlineType.SINGLE } : undefined,
@@ -198,7 +199,7 @@ function taskCellContent(dayData) {
 // ============================================================
 // MAIN TABLE
 // ============================================================
-const COL_WIDTHS  = [900, 5900, 750, 750, 900];
+const COL_WIDTHS  = [900, 7500, 750, 750, 900];
 const TABLE_WIDTH = COL_WIDTHS.reduce((a, b) => a + b, 0);
 
 function headerRow() {
@@ -217,13 +218,13 @@ function headerRow() {
 function dataRow(dayData) {
   const isOff = dayData.type === 'OFF';
   const isIS  = dayData.type === 'IS';
-  const remark = isOff ? 'OFF' : (isIS ? 'Izin Sakit' : dayData.remark);
-  const rowShading = (isOff || isIS) ? 'F2F2F2' : undefined;
+  const remark = isOff ? 'OFF' : (isIS ? 'IZIN SAKIT' : dayData.remark);
+  const rowShading = isOff ? 'F2F2F2' : undefined;
 
   return new TableRow({
     children: [
-      makeCell(para(txt(dayData.date), { align: AlignmentType.CENTER }), { width: COL_WIDTHS[0], shading: rowShading }),
-      makeCell(taskCellContent(dayData), { width: COL_WIDTHS[1], shading: rowShading }),
+      makeCell(para(txt(dayData.date), { align: AlignmentType.CENTER }), { width: COL_WIDTHS[0], vAlign: VerticalAlign.CENTER, shading: rowShading }),
+      makeCell(taskCellContent(dayData), { width: COL_WIDTHS[1], vAlign: VerticalAlign.CENTER, shading: rowShading }),
       makeCell(para(txt(isOff || isIS ? '' : dayData.start), { align: AlignmentType.CENTER }), { width: COL_WIDTHS[2], vAlign: VerticalAlign.CENTER, shading: rowShading }),
       makeCell(para(txt(isOff || isIS ? '' : dayData.end),   { align: AlignmentType.CENTER }), { width: COL_WIDTHS[3], vAlign: VerticalAlign.CENTER, shading: rowShading }),
       makeCell(para(txt(remark),                              { align: AlignmentType.CENTER }), { width: COL_WIDTHS[4], vAlign: VerticalAlign.CENTER, shading: rowShading }),
@@ -235,7 +236,7 @@ function dataRow(dayData) {
 // INFO TABLE (Vendor, Consultant, dll)
 // ============================================================
 function infoTable() {
-  const w = [1800, 100, 2800, 1000, 100, 2400];
+  const w = [1800, 100, 4500, 1100, 100, 3200];
   const iCell = (text, width) => new TableCell({
     borders: noBorders,
     width: { size: width, type: WidthType.DXA },
@@ -244,10 +245,11 @@ function infoTable() {
   });
   return new Table({
     width: { size: TABLE_WIDTH, type: WidthType.DXA },
+    alignment: AlignmentType.CENTER,
     columnWidths: w,
     borders: { top: noBorder, bottom: noBorder, left: noBorder, right: noBorder, insideH: noBorder, insideV: noBorder },
     rows: [
-      new TableRow({ children: [iCell('Vendor Name',     w[0]), iCell(':', w[1]), iCell('PT Code Development Indonesia', w[2]), iCell('Supervisor',  w[3]), iCell(':', w[4]), iCell('Mochamad Firman', w[5])] }),
+      new TableRow({ children: [iCell('Vendor Name',     w[0]), iCell(':', w[1]), iCell('', w[2]), iCell('Supervisor',  w[3]), iCell(':', w[4]), iCell('Mochamad Firman', w[5])] }),
       new TableRow({ children: [iCell('Consultant name', w[0]), iCell(':', w[1]), iCell(employee_name, w[2]), iCell('PIC Onsite', w[3]), iCell(':', w[4]), iCell(picOnsite, w[5])] }),
       new TableRow({ children: [iCell('Consultant role', w[0]), iCell(':', w[1]), iCell(consultant_role, w[2]), iCell('', w[3]), iCell('', w[4]), iCell('', w[5])] }),
     ],
@@ -268,6 +270,7 @@ function signatureTable() {
   });
   return new Table({
     width: { size: TABLE_WIDTH, type: WidthType.DXA },
+    alignment: AlignmentType.CENTER,
     columnWidths: [sigW, sigW, rem],
     rows: [
       new TableRow({ children: [
@@ -281,9 +284,9 @@ function signatureTable() {
         sCell([picOnsite], rem, [], AlignmentType.CENTER)
       ] }),
       new TableRow({ children: [
-        sCell(['', '', ''], sigW),
-        sCell(['', '', ''], sigW),
-        sCell(['', '', ''], rem)
+        sCell(['', '', '', '', ''], sigW),
+        sCell(['', '', '', '', ''], sigW),
+        sCell(['', '', '', '', ''], rem)
       ] }),
       new TableRow({ children: [
         sCell([`Date : ${prepared_date}`], sigW, [], AlignmentType.CENTER),
@@ -302,7 +305,7 @@ if (logoBuffer) {
   logoParaChildren.push(
     new ImageRun({
       data: logoBuffer,
-      transformation: { width: 242, height: 160 },
+      transformation: { width: 154, height: 35 },
       type: 'png',
     })
   );
@@ -314,7 +317,7 @@ const docChildren = [];
 if (logoParaChildren.length > 0) {
   docChildren.push(new Paragraph({
     alignment: AlignmentType.CENTER,
-    spacing: { before: 0, after: 80 },
+    spacing: { before: 400, after: 240 },
     children: logoParaChildren,
   }));
 }
@@ -323,16 +326,16 @@ if (logoParaChildren.length > 0) {
 docChildren.push(new Paragraph({
   alignment: AlignmentType.CENTER,
   spacing: { before: 0, after: 120 },
-  children: [txt('TIMESHEET', { bold: true, underline: true, size: FONT_SIZE_TITLE })],
+  children: [txt('TIMESHEET', { font: FONT_TITLE, bold: true, underline: true, size: FONT_SIZE_TITLE })],
 }));
 
 // Info table
 docChildren.push(infoTable());
-docChildren.push(new Paragraph({ spacing: { before: 120, after: 120 }, children: [] }));
 
 // Main table
 docChildren.push(new Table({
   width: { size: TABLE_WIDTH, type: WidthType.DXA },
+  alignment: AlignmentType.CENTER,
   columnWidths: COL_WIDTHS,
   rows: [headerRow(), ...days.map(d => dataRow(d))],
 }));
@@ -358,7 +361,7 @@ const doc = new Document({
             new TextRun({ children: [PageNumber.CURRENT], font: FONT, size: FONT_SIZE_BODY }),
             txt(' of '),
             new TextRun({ children: [PageNumber.TOTAL_PAGES], font: FONT, size: FONT_SIZE_BODY }),
-          ], { align: AlignmentType.RIGHT }),
+          ], { align: AlignmentType.CENTER }),
         ],
       }),
     },

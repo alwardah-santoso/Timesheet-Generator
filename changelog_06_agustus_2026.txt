@@ -1,0 +1,102 @@
+============================================================
+CHANGELOG — 06 Agustus 2026
+Timesheet Cleaner Spreadsheet Dev (Port 8769)
+============================================================
+
+FOKUS SESI: Perbaikan output bagian Longshift / Lembur (S12 & S23)
+
+------------------------------------------------------------
+MASALAH YANG DITEMUKAN
+------------------------------------------------------------
+
+1. Nama backup muncul sebagai "(Tidak Diketahui)"
+   - Terjadi pada hari longshift (shift 1.2 dan 2.3)
+   - Nama orang yang di-backup tidak terbaca dari sheet "Backup"
+
+2. Label REMARK tidak konsisten
+   - Seharusnya : "Shift 1 (Backup) & Shift 2" (menyesuaikan
+                   siapa yang backup shift berapa)
+   - Yang muncul : "Shift 1&2" (plain, tanpa keterangan backup)
+
+3. Hasil berbeda antar device (MacBook vs PC kantor)
+   - Di MacBook sudah benar, di kantor tidak benar
+   - Disebabkan oleh cara parsing nilai numerik dari Google Sheets
+
+------------------------------------------------------------
+ROOT CAUSE
+------------------------------------------------------------
+
+Google Sheets API mengembalikan SEMUA nilai sel sebagai string.
+Nilai angka seperti tanggal dan nomor shift dikembalikan dalam
+format float string, contoh:
+  - Tanggal  : "22.0"  (bukan "22")
+  - Shift    : "1.0"   (bukan "1")
+
+Akibatnya:
+  - int("22.0") → ValueError → baris di-skip → backup_info kosong
+  - backup_shift "1.0" != "1" → remark tidak ter-update
+  - Karena backup_info kosong, backup_name tidak terisi
+  - Fallback default "(Tidak Diketahui)" yang tampil di output
+
+Perbedaan antar device terjadi karena versi library / environment
+yang berbeda memperlakukan nilai Google Sheets secara berbeda.
+
+------------------------------------------------------------
+FILE YANG DIUBAH
+------------------------------------------------------------
+
+1. sheets_adapter.py  ← PERBAIKAN UTAMA (jalur Google Sheets)
+   - day_val  : int("22.0") → int(float("22.0")) = 22 ✅
+   - shift_val: "1.0" → str(int(float("1.0"))) = "1" ✅
+   - Tambah guard: skip baris jika day kosong atau "nan"
+
+2. core.py  (jalur upload XLSX yang saat ini di-disable)
+   - Normalisasi day_val dan shift_val yang sama
+   - Default backup_name diubah dari "(Tidak Diketahui)" → ""
+   - Rename variabel lokal backup_name → backup_name_val
+     (menghindari konflik dengan variabel di scope luar)
+   - Tambah debug print: "Backup entries: [...]" untuk diagnosis
+
+3. generate_docx.js
+   - S12: sebelumnya selalu cetak backup_name italic tanpa cek
+     → sekarang hanya tampil jika backup_name non-empty
+   - S23: disamakan logikanya dengan S12 (sebelumnya berbeda)
+   - Format tampilan: "Backup [Nama]" (prefix "Backup " ditambah)
+     agar konsisten dengan hasil yang diharapkan client
+
+4. config.py
+   - Default remark shift 1.2 : "Shift 1&2"  → "Shift 1 & Shift 2"
+   - Default remark shift 2.3 : "Shift 2&3"  → "Shift 2 & Shift 3"
+   - (Remark dinamis tetap berfungsi: "Shift 1 (Backup) & Shift 2",
+     dst. tergantung kolom shift di sheet Backup)
+
+------------------------------------------------------------
+BACKUP FILE YANG DIBUAT
+------------------------------------------------------------
+
+  core.py.before-06-08
+  sheets_adapter.py.before-06-08
+  generate_docx.js.before-06-08
+  server.py.before-06-08
+
+------------------------------------------------------------
+DEPLOYMENT
+------------------------------------------------------------
+
+  Service   : timesheet-cleaner-dev.service
+  Port      : 8769
+  Akses     : via Tailscale Funnel
+  Restart   : sudo systemctl restart timesheet-cleaner-dev.service
+  Status    : active (running) — 06 Agustus 2026, 19:01 WIB
+
+------------------------------------------------------------
+STATUS AKHIR
+------------------------------------------------------------
+
+  ✅ Nama backup terbaca dengan benar dari sheet "Backup"
+  ✅ Label REMARK sudah konsisten (Shift 1 (Backup) & Shift 2, dst.)
+  ✅ Hasil konsisten antar device
+  ✅ Service di-restart, perubahan sudah aktif
+  ✅ Dikonfirmasi oleh user: output sudah oke
+
+============================================================

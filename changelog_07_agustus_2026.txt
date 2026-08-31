@@ -1,0 +1,11 @@
+Changelog 07 Agustus 2026
+
+1. Backup File
+   - Melakukan backup untuk file-file utama terkait output dokumen:
+     - `generate_docx.js` disalin menjadi `generate_docx.js.before-07-08`
+     - `server.py` disalin menjadi `server.py.before-07-08`
+     - `index.html` disalin menjadi `index.html.before-07-08`
+
+2. Perbaikan Format Output Document (Timesheet)
+   - Mengubah file `generate_docx.js` untuk merapatkan jarak antara tabel informasi (Consultant Role, Vendor Name, dll) dengan tabel utama aktivitas (Main Table) di bawahnya.
+   - Perubahan teknis yang dilakukan: Menonaktifkan (comment out) baris `docChildren.push(new Paragraph({ spacing: { before: 40, after: 0 }, children: [] }));` yang sebelumnya berfungsi memberikan spasi (jarak) kosong sebesar 40 twips.

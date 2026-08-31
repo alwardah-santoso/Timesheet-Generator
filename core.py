@@ -372,7 +372,8 @@ def process_excel(excel_path: str, target_name: str = None):
                 if col2_val and col2_val.lower() != 'nan':
                     emp_name = col1_val
                     backup_name_val = col2_val
-                    if emp_name and emp_name.lower() != 'nan' and emp_name.lower() == target_name.lower():
+                    from sheets_adapter import match_employee_name
+                    if emp_name and emp_name.lower() != 'nan' and match_employee_name(emp_name, target_name):
                         backup_info.append({'day': day_val, 'name': backup_name_val, 'shift': shift_val})
                 # Jika format sederhana 2 kolom (Tanggal | Nama Karyawan/Backup)
                 elif col1_val and col1_val.lower() != 'nan':
@@ -515,8 +516,9 @@ def process_from_sheets_data(sheets_data: dict, target_name: str = None):
     num_days = sheets_data['num_days']
     df_open = sheets_data['df_open'].copy()
     df_closed = sheets_data['df_closed'].copy()
+    from sheets_adapter import match_employee_name
     raw_backup_info = sheets_data.get('backup_info', [])
-    backup_info = [b for b in raw_backup_info if b.get('employee', '').strip().lower() == found_name.lower()]
+    backup_info = [b for b in raw_backup_info if not b.get('employee') or match_employee_name(b.get('employee', '').strip(), found_name)]
     notes_list = sheets_data.get('notes_list', [])
 
     # ── Cell colors: default putih karena Google Sheets tidak punya warna sel ──

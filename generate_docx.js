@@ -177,21 +177,27 @@ function taskCellContent(dayData) {
 
   if (dayData.type === 'S12') {
     paras.push(para(txt('Shift 1', { bold: true })));
-    if (dayData.backup_name && dayData.backup_name.trim() !== '') {
+    if ((!dayData.backup_shift || dayData.backup_shift === '1') && dayData.backup_name && dayData.backup_name.trim() !== '') {
       paras.push(para(txt('Backup ' + dayData.backup_name, { italic: true })));
     }
     paras.push(...ticketBlock(dayData.open_s1, dayData.closed_s1));
     paras.push(para(txt('')));
     paras.push(para(txt('Shift 2', { bold: true })));
+    if (dayData.backup_shift === '2' && dayData.backup_name && dayData.backup_name.trim() !== '') {
+      paras.push(para(txt('Backup ' + dayData.backup_name, { italic: true })));
+    }
     paras.push(...ticketBlock(dayData.open_s2, dayData.closed_s2));
   } else if (dayData.type === 'S23') {
     paras.push(para(txt('Shift 2', { bold: true })));
-    if (dayData.backup_name && dayData.backup_name.trim() !== '') {
+    if ((!dayData.backup_shift || dayData.backup_shift === '2') && dayData.backup_name && dayData.backup_name.trim() !== '') {
       paras.push(para(txt('Backup ' + dayData.backup_name, { italic: true })));
     }
     paras.push(...ticketBlock(dayData.open_s2, dayData.closed_s2));
     paras.push(para(txt('')));
     paras.push(para(txt('Shift 3', { bold: true })));
+    if (dayData.backup_shift === '3' && dayData.backup_name && dayData.backup_name.trim() !== '') {
+      paras.push(para(txt('Backup ' + dayData.backup_name, { italic: true })));
+    }
     paras.push(...ticketBlock(dayData.open_s3, dayData.closed_s3));
   } else {
     paras.push(...ticketBlock(dayData.open, dayData.closed));

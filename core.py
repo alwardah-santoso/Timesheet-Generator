@@ -170,14 +170,14 @@ def build_day_data(shifts, df_open, df_closed, year, month, backup_info=None, ce
                 
                 if stype == 'S12':
                     if backup_shift == '2':
-                        modified_remark = 'Shift 1 dan Shift 2 Backup'
+                        modified_remark = 'Shift 1 dan Shift 2 (Backup)'
                     else:
-                        modified_remark = 'Shift 1 Backup dan Shift 2'
+                        modified_remark = 'Shift 1 (Backup) dan Shift 2'
                 elif stype == 'S23':
                     if backup_shift == '3':
-                        modified_remark = 'Shift 2 dan Shift 3 Backup'
+                        modified_remark = 'Shift 2 dan Shift 3 (Backup)'
                     else:
-                        modified_remark = 'Shift 2 Backup dan Shift 3'
+                        modified_remark = 'Shift 2 (Backup) dan Shift 3'
 
             if shift_str in ['1', '2']:
                 start_hr = int(sdef['start'].split(':')[0])
@@ -203,7 +203,7 @@ def build_day_data(shifts, df_open, df_closed, year, month, backup_info=None, ce
                 c2 = get_incidents(df_closed, s2_start, s2_end)
                 days.append({'day': day, 'date': date_str, 'type': stype, 'shift': shift_str, 'color': color_key,
                              'start': sdef['start'], 'end': sdef['end'], 'remark': modified_remark,
-                             'backup_name': backup_name,
+                             'backup_name': backup_name, 'backup_shift': backup_shift,
                              'open_s1': o1, 'closed_s1': c1, 'open_s2': o2, 'closed_s2': c2})
             elif shift_str == '2.3':
                 s2_start, s2_end = d.replace(hour=14), d.replace(hour=22)
@@ -215,7 +215,7 @@ def build_day_data(shifts, df_open, df_closed, year, month, backup_info=None, ce
                 c3 = get_incidents(df_closed, s3_start, s3_end)
                 days.append({'day': day, 'date': date_str, 'type': stype, 'shift': shift_str, 'color': color_key,
                              'start': sdef['start'], 'end': sdef['end'], 'remark': modified_remark,
-                             'backup_name': backup_name,
+                             'backup_name': backup_name, 'backup_shift': backup_shift,
                              'open_s2': o2, 'closed_s2': c2, 'open_s3': o3, 'closed_s3': c3})
         else:
             print(f"  [WARNING] Hari {day}: shift '{shift_str}' tidak dikenali, diperlakukan sebagai OFF")

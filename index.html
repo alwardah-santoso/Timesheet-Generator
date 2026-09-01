@@ -1169,6 +1169,33 @@
     setStep(2);
     toast('Silakan pilih nama konsultan lain', 'info');
   }
+
+  // ── Initialization ──────────────────────────────────────────
+  window.addEventListener('DOMContentLoaded', async () => {
+    try {
+      const res = await fetch('/api/cached-names');
+      const data = await res.json();
+      if (data.names && data.names.length > 0) {
+        dataSource = 'sheets';
+        if ($('sheetsStatus')) $('sheetsStatus').textContent = `✓ ${data.names.length} nama tersedia dari cache sebelumnya`;
+        
+        const select = $('nameSelect');
+        if (select) {
+          select.innerHTML = '<option value="">-- Pilih Nama --</option>';
+          data.names.forEach(n => {
+            const opt = document.createElement('option');
+            opt.value = n;
+            opt.textContent = n;
+            select.appendChild(opt);
+          });
+          select.disabled = false;
+        }
+        setStep(2);
+      }
+    } catch (e) {
+      console.warn('Failed to load cached names:', e);
+    }
+  });
 </script>
 </body>
 </html>

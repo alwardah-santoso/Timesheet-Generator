@@ -1,0 +1,55 @@
+Changelog 01 September 2026 (Review Bulanan Rules Typo)
+
+1. Review & Pembaruan Rules Normalisasi Insiden (`config.py`)
+   - Menambahkan varian typo UNCONFIRM baru pada `typo_map`:
+     - UNCOINFIRM → UNCONFIRM
+     - UNCOMFIRM  → UNCONFIRM
+     - UNCONFRIM  → UNCONFIRM
+     - UNCONFIRMSATKOM → UNCONFIRM
+   - Menambahkan mapping BUILDING RENOVASI → BUILDING RENOVATION.
+   - Menambahkan mapping VANDALISM → VANDALISME.
+   - Menambahkan varian REQ ROUTING baru:
+     - REQ BACKUP PSB       → REQ ROUTING
+     - REQ ROUTING          → REQ ROUTING
+     - REQ ROUTING CELLULER → REQ ROUTING
+     - REQ ROUTING EBUZZ    → REQ ROUTING
+     - ROUTING              → REQ ROUTING
+   - Menambahkan DOUBLE TICKET → UNCONFIRM (sebelumnya hanya DOUBLE TIKET).
+   - Menambahkan APLIKASI → APLIKASI ERROR.
+
+2. Pembaruan Smart Detection (`core.py`)
+   - Memperluas deteksi substring dari `PENURUNAN PERSENTASE` menjadi `PENURUNAN`
+     agar semua varian judul yang mengandung kata "PENURUNAN" otomatis
+     di-normalize ke `Seluruh Remote Non - Cellular`.
+
+3. Commit & Push ke GitHub
+   - Commit: chore: update typo rules - September 2026
+   - Push ke: https://github.com/alwardah-santoso/Timesheet-Generator (branch main)
+   - Token GitHub diperbarui karena token lama sudah expired.
+
+4. Restart Service
+   - Me-restart `timesheet-cleaner-dev.service` (port 8769) agar seluruh
+     pembaruan rules masuk ke dalam memori aplikasi.
+● timesheet-cleaner-dev.service - Timesheet Cleaner Spreadsheet Dev Dashboard (Port 8769)
+- Restart ke-2 malam 01 September 2026
+
+5. Fix Bug: REQUEST ROUTING tidak ter-normalize (ditemukan kasus Gilang Donny)
+   - Root cause: `typo_map` di config.py hanya punya varian "REQ ROUTING" sebagai input,
+     tapi semua output menunjuk ke "REQ ROUTING", padahal output standar yang benar
+     adalah "REQUEST ROUTING" (full word).
+   - Fix: Semua varian routing di typo_map diubah output-nya ke "REQUEST ROUTING":
+     - ROUTING GPRS          → REQUEST ROUTING
+     - REQ ROUTING           → REQUEST ROUTING
+     - REQ ROUTING VSAT      → REQUEST ROUTING
+     - REQ ROUTING CELLULER  → REQUEST ROUTING
+     - REQ ROUTING EBUZZ     → REQUEST ROUTING
+     - REQ BACKUP PSB        → REQUEST ROUTING
+     - ROUTING               → REQUEST ROUTING
+     - REQUEST ROUTING       → REQUEST ROUTING
+     - REQUEST ROUTING VSAT  → REQUEST ROUTING
+     - REQUEST ROUTING CELLULER → REQUEST ROUTING
+     - REQUEST ROUTING EBUZZ → REQUEST ROUTING
+     - REQUEST BACKUP PSB    → REQUEST ROUTING
+   - Update snapshot_reference.json: "REQ ROUTING" dan "ROUTING" → "REQUEST ROUTING".
+   - Hapus sheets_cache.pkl lama, service di-restart ulang.
+

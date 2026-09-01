@@ -31,9 +31,28 @@ OUTPUT_DIR = settings.output_dir
 UPLOAD_DIR.mkdir(exist_ok=True)
 OUTPUT_DIR.mkdir(exist_ok=True)
 
-# ── Cache for Google Sheets data (between load-from-sheets and process calls) ──
-_sheets_data_cache = None
+import pickle
 
+# ── Cache for Google Sheets data (between load-from-sheets and process calls) ──
+CACHE_FILE = BASE_DIR / "sheets_cache.pkl"
+
+def load_cache():
+    if CACHE_FILE.exists():
+        try:
+            with open(CACHE_FILE, "rb") as f:
+                return pickle.load(f)
+        except Exception as e:
+            logging.getLogger(__name__).warning(f"Gagal memuat cache: {e}")
+    return None
+
+def save_cache(data):
+    try:
+        with open(CACHE_FILE, "wb") as f:
+            pickle.dump(data, f)
+    except Exception as e:
+        logging.getLogger(__name__).warning(f"Gagal menyimpan cache: {e}")
+
+_sheets_data_cache = load_cache()
 app = FastAPI(title="Timesheet Cleaner")
 
 # ── Error handlers ─────────────────────────────────────────────────────────
@@ -102,6 +121,15 @@ async def serve_ui():
 #         "message": f"File berhasil diupload. Ditemukan {len(names)} nama."
 #     })
 
+@app.get("/api/cached-names")
+async def get_cached_names():
+    """Return available names from cache without re-fetching from Google Sheets."""
+    if _sheets_data_cache is not None:
+        return JSONResponse({
+            "names": _sheets_data_cache.get('names_list', []),
+            "message": "Data loaded from cache."
+        })
+    return JSONResponse({"names": []})
 
 @app.post("/api/load-from-sheets")
 async def load_from_sheets(sheet_id: str = Form(None)):
@@ -122,6 +150,7 @@ async def load_from_sheets(sheet_id: str = Form(None)):
     try:
         sheets_data = sheets_adapter.build_dataframes(ss_id=target_ss_id)
         _sheets_data_cache = sheets_data
+        save_cache(sheets_data)
     except Exception as e:
         raise HTTPException(400, f"Gagal membaca Google Sheets: {str(e)}")
 
@@ -145,7 +174,11 @@ async def process_data(filename: str = Form(None), name: str = Form(...), source
         if _sheets_data_cache is None:
             raise HTTPException(400, "Data Google Sheets belum dimuat. Klik 'Load from Google Sheets' terlebih dahulu.")
         try:
-            sheets_data = sheets_adapter.get_shifts_for_name(_sheets_data_cache, name)
+            import copy
+            # Gunakan copy.deepcopy agar dict asli (_sheets_data_cache) tidak termutasi
+            # oleh fungsi get_shifts_for_name()
+            data_copy = copy.deepcopy(_sheets_data_cache)
+            sheets_data = sheets_adapter.get_shifts_for_name(data_copy, name)
             names, output = process_from_sheets_data(sheets_data, name)
         except Exception as e:
             raise HTTPException(400, f"Gagal memproses (Google Sheets): {str(e)}")

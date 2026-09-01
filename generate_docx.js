@@ -209,7 +209,7 @@ function taskCellContent(dayData) {
 // ============================================================
 // MAIN TABLE
 // ============================================================
-const COL_WIDTHS  = [900, 7500, 750, 750, 900];
+const COL_WIDTHS  = [900, 7200, 750, 750, 1200];
 const TABLE_WIDTH = COL_WIDTHS.reduce((a, b) => a + b, 0);
 
 function headerRow() {

@@ -40,8 +40,8 @@
       "closed": {
         "JARKOM LASTMILE": 3,
         "APLIKASI LAMBAT": 1,
-        "ROUTING": 1,
-        "REAKTIVASI SIMCARD": 1
+        "REAKTIVASI SIMCARD": 1,
+        "REQUEST ROUTING": 1
       }
     },
     {
@@ -57,7 +57,7 @@
         "JARINGAN LAMBAT": 14,
         "JARKOM LASTMILE": 7,
         "APLIKASI ERROR": 2,
-        "REQ ROUTING": 2,
+        "REQUEST ROUTING": 2,
         "REAKTIVASI SIMCARD": 1
       },
       "closed": {
@@ -160,7 +160,7 @@
         "REAKTIVASI SIMCARD": 4,
         "APLIKASI ERROR": 3,
         "JARKOM LASTMILE": 2,
-        "REQ ROUTING": 1
+        "REQUEST ROUTING": 1
       },
       "closed": {
         "UNCONFIRM": 6,
@@ -327,7 +327,7 @@
         "REQ BYPASS": 1,
         "OFFLINE": 1,
         "CISCO RUSAK": 1,
-        "REQ ROUTING": 1
+        "REQUEST ROUTING": 1
       },
       "closed": {
         "JARKOM LAMBAT": 9,
@@ -411,7 +411,7 @@
         "APLIKASI ERROR": 7,
         "JARKOM LASTMILE": 5,
         "JARINGAN LAMBAT": 2,
-        "REQ ROUTING": 2,
+        "REQUEST ROUTING": 2,
         "OFFLINE": 1,
         "REAKTIVASI SIMCARD": 1,
         "UNCONFIRM": 1
@@ -475,7 +475,7 @@
         "APLIKASI ERROR": 7,
         "JARKOM LASTMILE": 5,
         "REAKTIVASI SIMCARD": 3,
-        "REQ ROUTING": 2
+        "REQUEST ROUTING": 2
       },
       "closed": {
         "JARKOM LASTMILE": 1,
@@ -496,7 +496,7 @@
         "JARKOM LASTMILE": 5,
         "APLIKASI ERROR": 4,
         "REAKTIVASI SIMCARD": 4,
-        "REQ ROUTING": 1
+        "REQUEST ROUTING": 1
       },
       "closed": {
         "JARKOM LAMBAT": 15,

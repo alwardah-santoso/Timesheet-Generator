@@ -47,7 +47,7 @@ def normalize_incident_title(title):
 
     if t.startswith('OTHER -'):
         return 'OTHER'
-    if 'PENURUNAN PERSENTASE' in t:
+    if 'PENURUNAN' in t:
         return 'Seluruh Remote Non - Cellular'
 
     # REAKTIVASI SIMCARD normalization (case-insensitive)

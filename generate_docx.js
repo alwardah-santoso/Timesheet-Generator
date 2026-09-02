@@ -150,7 +150,7 @@ function ticketBlock(openMap, closedMap, subLabel) {
 function taskCellContent(dayData) {
   const paras = [];
 
-  if (dayData.type === 'OFF' || dayData.type === 'IS') {
+  if (dayData.type === 'OFF' || dayData.type === 'IS' || dayData.type === 'CTK') {
     paras.push(para(txt('')));
     return paras;
   }
@@ -228,15 +228,16 @@ function headerRow() {
 function dataRow(dayData) {
   const isOff = dayData.type === 'OFF';
   const isIS  = dayData.type === 'IS';
-  const remark = isOff ? 'OFF' : (isIS ? 'IZIN SAKIT' : dayData.remark);
-  const rowShading = isOff ? 'F2F2F2' : undefined;
+  const isCTK = dayData.type === 'CTK';
+  const remark = isOff ? 'OFF' : (isCTK ? 'CTK' : (isIS ? 'IZIN SAKIT' : dayData.remark));
+  const rowShading = (isOff || isCTK) ? 'F2F2F2' : undefined;
 
   return new TableRow({
     children: [
       makeCell(para(txt(dayData.date), { align: AlignmentType.CENTER }), { width: COL_WIDTHS[0], vAlign: VerticalAlign.CENTER, shading: rowShading }),
       makeCell(taskCellContent(dayData), { width: COL_WIDTHS[1], vAlign: VerticalAlign.CENTER, shading: rowShading }),
-      makeCell(para(txt(isOff || isIS ? '' : dayData.start), { align: AlignmentType.CENTER }), { width: COL_WIDTHS[2], vAlign: VerticalAlign.CENTER, shading: rowShading }),
-      makeCell(para(txt(isOff || isIS ? '' : dayData.end),   { align: AlignmentType.CENTER }), { width: COL_WIDTHS[3], vAlign: VerticalAlign.CENTER, shading: rowShading }),
+      makeCell(para(txt(isOff || isIS || isCTK ? '' : dayData.start), { align: AlignmentType.CENTER }), { width: COL_WIDTHS[2], vAlign: VerticalAlign.CENTER, shading: rowShading }),
+      makeCell(para(txt(isOff || isIS || isCTK ? '' : dayData.end),   { align: AlignmentType.CENTER }), { width: COL_WIDTHS[3], vAlign: VerticalAlign.CENTER, shading: rowShading }),
       makeCell(para(txt(remark),                              { align: AlignmentType.CENTER }), { width: COL_WIDTHS[4], vAlign: VerticalAlign.CENTER, shading: rowShading }),
     ],
   });

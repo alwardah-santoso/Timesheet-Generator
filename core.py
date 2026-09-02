@@ -95,7 +95,7 @@ def _build_timesheet_result(found_name: str, year: int, month: int, days_data: l
     """Helper terpusat untuk membangun dictionary output ringkasan bulanan (REF-01)."""
     summary = []
     for d in days_data:
-        if d['type'] not in ['OFF', 'IS']:
+        if d['type'] not in ['OFF', 'IS', 'CTK']:
             if d['type'] == 'S12':
                 o = sum(d['open_s1'].values()) + sum(d['open_s2'].values())
                 c = sum(d['closed_s1'].values()) + sum(d['closed_s2'].values())
@@ -146,6 +146,8 @@ def build_day_data(shifts, df_open, df_closed, year, month, backup_info=None, ce
 
         if shift_str in ['OFF', 'nan', '']:
             days.append({'day': day, 'date': date_str, 'type': 'OFF', 'shift': shift_str, 'color': color_key})
+        elif shift_str.upper() == 'CTK':
+            days.append({'day': day, 'date': date_str, 'type': 'CTK', 'shift': shift_str, 'color': color_key})
         elif shift_str.upper().startswith('IS'):
             days.append({'day': day, 'date': date_str, 'type': 'IS', 'shift': shift_str, 'color': color_key})
         elif shift_str in shift_defs:
